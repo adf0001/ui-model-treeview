@@ -1,0 +1,28 @@
+{
+  "name": "ui-model-treeview",
+  "version": "1.0.1",
+  "description": "dom ui model for treeview",
+  "main": "ui-model-treeview.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ui",
+    "model",
+    "treeview"
+  ],
+  "author": "fwg",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adf0001/ui-model-treeview.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adf0001/ui-model-treeview/issues"
+  },
+  "homepage": "https://github.com/adf0001/ui-model-treeview#readme",
+  "dependencies": {
+    "ele-id": "^1.0.2",
+    "insert-adjacent-return": "^1.0.1"
+  }
+}
