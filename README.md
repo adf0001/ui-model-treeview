@@ -1,6 +1,11 @@
 # ui-model-treeview
 dom ui model for treeview
 
+# Install
+```
+npm install ui-model-treeview
+```
+
 # Usage & Api
 ```javascript
 
@@ -68,29 +73,29 @@ done(!(
 # Convention
 
 ```
-	a treeview is defined as
+a treeview is defined as
 
-	lv1:	<div class='tree-node'>							//tree node main element, required;
+lv1:	<div class='tree-node'>							//tree node main element, required;
 
-				//all sub items should be direct children of 'tree-node'
+			//all sub items should be direct children of 'tree-node'
 
-	lv2:		<span class='tree-to-expand'>...</span>		//expand/collapse command element, optional;
-	lv2:		//<span class='tree-to-expand tree-to-collapse/tree-disable'>...</span>	//state
+lv2:		<span class='tree-to-expand'>...</span>		//expand/collapse command element, optional;
+lv2:		//<span class='tree-to-expand tree-to-collapse/tree-disable'>...</span>	//state
 
-	lv2:		<span class='tree-name'>...</span>			//name element, optional;
+lv2:		<span class='tree-name'>...</span>			//name element, optional;
 
-	lv3:		...											//other user defined content;
+lv3:		...											//other user defined content;
 
-				//the last sub item is 'tree-children'
+			//the last sub item is 'tree-children'
 
-	lv1:		<div class='tree-children'>...</div>		//required if a node contains children;
-			</div>
+lv1:		<div class='tree-children'>...</div>		//required if a node contains children;
+		</div>
 
-	* lv1 - basic required;
-	* lv2 - optional, with tool set in this lib;
-	* lv3 - user defined;
+* lv1 - basic required;
+* lv2 - optional, with tool set in this lib;
+* lv3 - user defined;
 
-	* the 'class' names are the required properties;
-	* the element tags are in user's favour;
+* the 'class' names are the required properties;
+* the element tags are in user's favour;
 
 ```
