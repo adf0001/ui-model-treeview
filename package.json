@@ -1,6 +1,6 @@
 {
   "name": "ui-model-treeview",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "dom ui model for treeview",
   "main": "ui-model-treeview.js",
   "scripts": {

@@ -108,7 +108,7 @@ var nodeToExpand = function (el, template, before) {
 }
 
 /*
-template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate  } | name.
+template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt } | name.
 container: set true if the 'elParent' is already a children container
 */
 var addChild = function (elParent, template, container) {
@@ -133,13 +133,19 @@ var addChild = function (elParent, template, container) {
 		template.html = a.join("");
 	}
 
-	//prepare children
-	var elChildren = container
-		? elParent
-		: nodePart(elParent, "tree-children", template.childrenTemplate || true);
+	var el;
+	if (template.insertAt) {
+		el = insert_adjacent_return.prependOut(template.insertAt, template.html);
+	}
+	else {
+		//prepare children
+		var elChildren = container
+			? elParent
+			: nodePart(elParent, "tree-children", template.childrenTemplate || true);
 
-	//add
-	var el = insert_adjacent_return.append(elChildren, template.html);
+		//add
+		el = insert_adjacent_return.append(elChildren, template.html);
+	}
 	if (!el.classList.contains("tree-node")) el.classList.add("tree-node");
 	return el;
 }

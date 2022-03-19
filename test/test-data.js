@@ -13,7 +13,7 @@ module.exports = {
 
 		/*
 		.addChild(elParent, template, container)
-			template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate  }
+			template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt }
 				| name.
 			container: set true if the 'elParent' is already a children container
 		*/
@@ -25,6 +25,13 @@ module.exports = {
 		var elNode3 = ui_model_treeview.addChild(elNode2,	//create by template
 			{
 				content: "<span class='tree-name'>ccc</span><span class='my-cls'>ddd</span>"
+			}
+		);
+
+		var elNode4 = ui_model_treeview.addChild(null,	//by template.insertAt
+			{
+				content: "<span class='tree-name'>eeee</span><span class='my-cls'>fff</span>",
+				insertAt: elNode3,
 			}
 		);
 

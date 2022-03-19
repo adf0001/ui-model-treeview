@@ -17,7 +17,7 @@ var el = document.getElementById('divResult3').firstChild;
 
 /*
 .addChild(elParent, template, container)
-	template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate  }
+	template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt }
 		| name.
 	container: set true if the 'elParent' is already a children container
 */
