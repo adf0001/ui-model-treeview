@@ -16,17 +16,17 @@ document.getElementById('divResult3').innerHTML = '<div></div>';
 var el = document.getElementById('divResult3').firstChild;
 
 /*
-.addChild(elParent, template, container)
+.addNode(elParent, template, container)
 	template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt }
 		| name.
 	container: set true if the 'elParent' is already a children container
 */
-var elNode1 = ui_model_treeview.addChild(el, "aaa", true);	//add by 'name'
+var elNode1 = ui_model_treeview.addNode(el, "aaa", true);	//add by 'name'
 
-var elNode2 = ui_model_treeview.addChild(elNode1, "bbb");
+var elNode2 = ui_model_treeview.addNode(elNode1, "bbb");
 ui_model_treeview.nodeToExpand(elNode2, true);		//create to-expand by default
 
-var elNode3 = ui_model_treeview.addChild(elNode2,	//create by template
+var elNode3 = ui_model_treeview.addNode(elNode2,	//create by template
 	{
 		content: "<span class='tree-name'>ccc</span><span class='my-cls'>ddd</span>"
 	}
