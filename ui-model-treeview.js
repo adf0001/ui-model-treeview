@@ -108,8 +108,8 @@ var nodeToExpand = function (el, template, before) {
 }
 
 /*
-template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt } | name.
-container: set true if the 'elNode' is already a children container
+template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insert } | name.
+container: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 */
 var addNode = function (elNode, template, container) {
 	//arguments
@@ -134,8 +134,8 @@ var addNode = function (elNode, template, container) {
 	}
 
 	var el;
-	if (template.insertAt) {
-		el = insert_adjacent_return.prependOut(getNode(elNode || template.insertAt), template.html);
+	if (template.insert) {
+		el = insert_adjacent_return.prependOut(getNode(elNode), template.html);
 	}
 	else {
 		//prepare children
@@ -207,7 +207,6 @@ module.exports = {
 	nodeToExpand: nodeToExpand,
 
 	addNode: addNode,
-	addChild: addNode,	//compatible
 
 	getToExpandState: getToExpandState,
 	setToExpandState: setToExpandState,

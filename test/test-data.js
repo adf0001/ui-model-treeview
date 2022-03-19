@@ -12,10 +12,10 @@ module.exports = {
 		var el = document.getElementById('divResult3').firstChild;
 
 		/*
-		.addNode(elParent, template, container)
+		.addNode(elNode, template, container)
 			template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt }
 				| name.
-			container: set true if the 'elParent' is already a children container
+			container: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 		*/
 		var elNode1 = ui_model_treeview.addNode(el, "aaa", true);	//add by 'name'
 
@@ -31,13 +31,7 @@ module.exports = {
 		var elNode4 = ui_model_treeview.addNode(elNode3,	//by template.insertAt
 			{
 				content: "<span class='tree-name'>eeee</span><span class='my-cls'>fff</span>",
-				insertAt: true,
-			}
-		);
-		var elNode5 = ui_model_treeview.addNode(null,	//by template.insertAt
-			{
-				content: "<span class='tree-name'>ggg</span><span class='my-cls'>hhh</span>",
-				insertAt: elNode3,
+				insert: true,
 			}
 		);
 
