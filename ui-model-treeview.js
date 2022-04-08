@@ -53,6 +53,7 @@ template: { (html | contentHtml/content | createByDefault) } | content | createB
 */
 var nodePart = function (el, className, template, before) {
 	el = getNode(el);
+	if (!el) return null;
 
 	var selector = "#" + ele_id(el) + " > ." + className.replace(/^\.+/, "");
 	var elPart = el.querySelector(selector);
