@@ -33,7 +33,7 @@ var ele_id = require("ele-id");
 var insert_adjacent_return = require("insert-adjacent-return");
 
 var defaultChildrenTemplate = "<div class='tree-children' style='padding-left:1em;'></div>";
-var defaultToExpandTemplate = "<span class='tree-to-expand' style='padding:0em 0.5em;text-decoration:none;font-family:monospace;'>+</span>";
+var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable' style='padding:0em 0.5em;font-family:monospace;'>.</span>";
 
 //get 'tree-node' from self or ancestor of an element
 var getNode = function (el) {
