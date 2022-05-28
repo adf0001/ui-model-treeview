@@ -85,9 +85,9 @@ var getContainer = function (el) {
 
 //get or set container attribute
 var containerAttribute = function (el, name, value) {
-	return (arguments.length > 2)
-		? getContainer(el).setAttribute(name, value)		//set
-		: getContainer(el).getAttribute(name);	//get
+	return (typeof value === "undefined")
+		? getContainer(el).getAttribute(name)	//get
+		: getContainer(el).setAttribute(name, value);		//set
 }
 
 //get or set node class state
@@ -104,7 +104,7 @@ var selectState = function (el, boolValue) { return nodeClass(el, "tree-selected
 /*
 get the direct part element of a tree-node by class name, or create by template.
 
-template: { (html | contentHtml/content | createByDefault) } | content | createByDefault===true
+template: { (outerHtml | innerHtml/content | createByDefault) } | innerHtml | createByDefault===true
 */
 var nodePart = function (el, className, template, before) {
 	el = getNode(el);
@@ -118,36 +118,36 @@ var nodePart = function (el, className, template, before) {
 
 	//arguments
 	if (typeof template === "boolean") template = { createByDefault: template };
-	else if (typeof template === "string") template = { contentHtml: template };
+	else if (typeof template === "string") template = { innerHtml: template };
 
-	if (!("contentHtml" in template) && ("content" in template)) template.contentHtml = template.content;
+	template.innerHtml = template.innerHtml || template.content;
 
-	//build html
-	if (!template.html) {
-		if (typeof template.contentHtml !== "undefined") {
-			template.html = "<span class='" + className + "'>" + template.contentHtml + "</span>";
+	//build outerHtml
+	if (!template.outerHtml) {
+		if (typeof template.innerHtml !== "undefined") {
+			template.outerHtml = "<span class='" + className + "'>" + template.innerHtml + "</span>";
 		}
 		else {
 			//create by default
-			if (className === "tree-children") template.html = defaultChildrenTemplate;
-			else if (className === "tree-to-expand") template.html = defaultToExpandTemplate;
-			else template.html = "<span class='" + className + "'>" + className + "</span>";
+			if (className === "tree-children") template.outerHtml = defaultChildrenTemplate;
+			else if (className === "tree-to-expand") template.outerHtml = defaultToExpandTemplate;
+			else template.outerHtml = "<span class='" + className + "'>" + className + "</span>";
 		}
 	}
 
 	//create
 	if (className === "tree-children") {
-		elPart = insert_adjacent_return.append(el, template.html);	//append to the last
+		elPart = insert_adjacent_return.append(el, template.outerHtml);	//append to the last
 	}
 	else if (before) {
-		elPart = insert_adjacent_return.prepend(el, template.html);
+		elPart = insert_adjacent_return.prepend(el, template.outerHtml);
 	}
 	else {
 		//before tree-children
 		var elChildren = el.querySelector("#" + ele_id(el) + " > .tree-children");
 		elPart = elChildren
-			? insert_adjacent_return.prependOut(elChildren, template.html)
-			: insert_adjacent_return.append(el, template.html);
+			? insert_adjacent_return.prependOut(elChildren, template.outerHtml)
+			: insert_adjacent_return.append(el, template.outerHtml);
 	}
 
 	//ensure class name existed.
@@ -164,7 +164,8 @@ var nodeToExpand = function (el, template, before) {
 }
 
 /*
-template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insert } | name.
+template:{ (outHtml | innerHtml/content | name, toExpand, toExpandTemplate),
+	childrenTemplate, insert } | name.
 container: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 */
 var addNode = function (elNode, template, container) {
@@ -172,26 +173,26 @@ var addNode = function (elNode, template, container) {
 	if (!template) template = {};
 	else if (typeof template === "string") template = { name: template };
 
-	if (!("contentHtml" in template) && ("content" in template)) template.contentHtml = template.content;
+	template.innerHtml = template.innerHtml || template.content;
 
-	//build html
-	if (!template.html) {
+	//build outHtml
+	if (!template.outHtml) {
 		var a = [];
 		a[a.length] = "<div class='tree-node'>";
-		if (template.contentHtml) {
-			a[a.length] = template.contentHtml;
+		if (template.innerHtml) {
+			a[a.length] = template.innerHtml;
 		}
 		else {
 			if (template.toExpand) a[a.length] = template.toExpandTemplate || defaultToExpandTemplate;
 			a[a.length] = "<span class='tree-name'>" + (template.name || "item") + "</span>";
 		}
 		a[a.length] = "</div>";
-		template.html = a.join("");
+		template.outHtml = a.join("");
 	}
 
 	var el;
 	if (template.insert) {
-		el = insert_adjacent_return.prependOut(getNode(elNode), template.html);
+		el = insert_adjacent_return.prependOut(getNode(elNode), template.outHtml);
 	}
 	else {
 		//prepare children
@@ -200,7 +201,7 @@ var addNode = function (elNode, template, container) {
 			: nodePart(elNode, "tree-children", template.childrenTemplate || true);
 
 		//add
-		el = insert_adjacent_return.append(elChildren, template.html);
+		el = insert_adjacent_return.append(elChildren, template.outHtml);
 	}
 	if (!el.classList.contains("tree-node")) el.classList.add("tree-node");
 	return el;
@@ -275,7 +276,7 @@ module.exports = {
 	containerAttr: containerAttribute,
 
 	nodeClass,
-	
+
 	selectState,
 
 };

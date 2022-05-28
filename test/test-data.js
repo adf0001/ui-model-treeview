@@ -13,8 +13,8 @@ module.exports = {
 
 		/*
 		.addNode(elNode, template, container)
-			template:{ (html | contentHtml/content | name, toExpand, toExpandTemplate), childrenTemplate, insertAt }
-				| name.
+			template:{ (outHtml | innerHtml/content | name, toExpand, toExpandTemplate),
+				childrenTemplate, insert } | name.
 			container: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 		*/
 		var elNode1 = ui_model_treeview.addNode(el, "aaa", true);	//add by 'name'
@@ -37,7 +37,7 @@ module.exports = {
 
 		/*
 		.nodePart(el, className, template, before)
-			template: { (html | contentHtml/content | createByDefault) } 
+			template: { (outerHtml | innerHtml/content | createByDefault) } 
 				| content | createByDefault===true
 
 			shortcuts:
@@ -65,10 +65,17 @@ module.exports = {
 			}
 		};
 
+		//.containerAttribute(el, name [, value])		//get or set container attribute
 		ui_model_treeview.containerAttr(elMy2, "check", 999);
 
-		ui_model_treeview.selectState(elMy2, true);
+		/*
+		.nodeClass(el, className [, boolValue])		//get or set node class state
+
+			shortcuts:
+				.selectState(el, boolValue)
+		*/
 		ui_model_treeview.nodeClass(elMy2, "my-class", true);
+		ui_model_treeview.selectState(elMy2, true);
 
 		done(!(
 			//.getNode (el)		//get 'tree-node' from self or ancestor of an element
