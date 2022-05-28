@@ -90,6 +90,17 @@ var containerAttribute = function (el, name, value) {
 		: getContainer(el).getAttribute(name);	//get
 }
 
+//get or set node class state
+var nodeClass = function (el, className, boolValue) {
+	var cl = getNode(el).classList;
+
+	return (typeof boolValue === "undefined")
+		? cl.contains(className)	//get
+		: (boolValue ? cl.add(className) : cl.remove(className));	//set
+}
+
+var selectState = function (el, boolValue) { return nodeClass(el, "tree-selected", boolValue); }
+
 /*
 get the direct part element of a tree-node by class name, or create by template.
 
@@ -262,5 +273,9 @@ module.exports = {
 
 	containerAttribute,
 	containerAttr: containerAttribute,
+
+	nodeClass,
+	
+	selectState,
 
 };

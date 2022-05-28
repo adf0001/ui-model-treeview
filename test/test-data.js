@@ -67,6 +67,9 @@ module.exports = {
 
 		ui_model_treeview.containerAttr(elMy2, "check", 999);
 
+		ui_model_treeview.selectState(elMy2, true);
+		ui_model_treeview.nodeClass(elMy2, "my-class", true);
+
 		done(!(
 			//.getNode (el)		//get 'tree-node' from self or ancestor of an element
 			ui_model_treeview.getNode(elMy1) === elNode3 &&
@@ -75,7 +78,10 @@ module.exports = {
 
 			ui_model_treeview.containerAttr(elMy2, "check") == 999 &&
 			ui_model_treeview.containerAttr(elMy2, "check") !== 999 &&
-			ui_model_treeview.containerAttr(elMy2, "check") === "999"
+			ui_model_treeview.containerAttr(elMy2, "check") === "999" &&
+
+			ui_model_treeview.selectState(elMy2) === true &&
+			ui_model_treeview.nodeClass(elMy2, "my-class") === true
 
 		));
 	},
