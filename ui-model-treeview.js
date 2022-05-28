@@ -85,14 +85,18 @@ var getContainer = function (el) {
 
 //get or set container attribute
 var containerAttribute = function (el, name, value) {
+	var container = getContainer(el);
+	if (!container) return;
+
 	return (typeof value === "undefined")
-		? getContainer(el).getAttribute(name)	//get
-		: getContainer(el).setAttribute(name, value);		//set
+		? container.getAttribute(name)		//get
+		: container.setAttribute(name, value);		//set
 }
 
 //get or set node class state
 var nodeClass = function (el, className, boolValue) {
-	var cl = getNode(el).classList;
+	var cl = getNode(el)?.classList;
+	if (!cl) return;
 
 	return (typeof boolValue === "undefined")
 		? cl.contains(className)	//get
