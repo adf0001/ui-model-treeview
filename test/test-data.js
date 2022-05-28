@@ -7,7 +7,7 @@ module.exports = {
 	"ui_model_treeview": function (done) {
 		if (typeof window === "undefined") throw "disable for nodejs";
 
-		document.getElementById('divResult3').innerHTML = '<div></div>';
+		document.getElementById('divResult3').innerHTML = '<div class="tree-container"></div>';
 
 		var el = document.getElementById('divResult3').firstChild;
 
@@ -65,10 +65,18 @@ module.exports = {
 			}
 		};
 
+		ui_model_treeview.containerAttr(elMy2, "check", 999);
+
 		done(!(
 			//.getNode (el)		//get 'tree-node' from self or ancestor of an element
 			ui_model_treeview.getNode(elMy1) === elNode3 &&
-			ui_model_treeview.getNode(elNode3) === elNode3
+			ui_model_treeview.getNode(elNode3) === elNode3 &&
+			ui_model_treeview.getContainer(elNode3) === el &&
+
+			ui_model_treeview.containerAttr(elMy2, "check") == 999 &&
+			ui_model_treeview.containerAttr(elMy2, "check") !== 999 &&
+			ui_model_treeview.containerAttr(elMy2, "check") === "999"
+
 		));
 	},
 

@@ -5,7 +5,8 @@
 convention:
 	a treeview is defined as
 
-	lv1:	<div class='tree-container'>						//tree container at topmost, required;
+	lv2:	<div class='tree-container'>						//tree container at topmost, optional;
+				...
 	lv1:		<div class='tree-node'>							//tree node main element, required;
 
 					//all sub items should be direct children of 'tree-node'
@@ -23,8 +24,9 @@ convention:
 				</div>
 			</div>
 
-	* lv1 - basic required; 'tree-container' can be combined with 'tree-node' or 'tree-children';
+	* lv1 - basic required;
 	* lv2 - optional, with tool set in this lib;
+		* 'tree-container' can be combined with 'tree-node' or 'tree-children';
 	* lv3 - user defined;
 
 	* the 'class' names are the required properties;
@@ -46,6 +48,43 @@ var getNode = function (el) {
 		el = el.parentNode;
 	}
 	return null;
+}
+
+function cacheContainerId(elArray, containerId) {
+	if (elArray.length) elArray.forEach(v => v.setAttribute("tree-container-id", containerId));
+}
+
+//get 'tree-container'
+var getContainer = function (el) {
+	if (typeof el === "string") el = document.getElementById(el);
+
+	var cl, container;
+	var elList = [];		//cache container id in tree-children
+
+	while (el && (cl = el.classList)) {
+		if (cl.contains('tree-container')) {
+			cacheContainerId(elList, ele_id(el));
+			return el;
+		}
+
+		if (cl.contains('tree-children')) {
+			if (container = el.getAttribute("tree-container-id")) {
+				cacheContainerId(elList, container);
+				return document.getElementById(container);
+			}
+			elList.push(el);
+		}
+
+		el = el.parentNode;
+	}
+	return null;
+}
+
+//get or set container attribute
+var containerAttribute = function (el, name, value) {
+	return (arguments.length > 2)
+		? getContainer(el).setAttribute(name, value)		//set
+		: getContainer(el).getAttribute(name);	//get
 }
 
 /*
@@ -197,21 +236,28 @@ var setToExpandState = function (el, state, text) {
 	}
 }
 
+//module exports
+
 module.exports = {
-	defaultChildrenTemplate: defaultChildrenTemplate,
-	defaultToExpandTemplate: defaultToExpandTemplate,
+	defaultChildrenTemplate,
+	defaultToExpandTemplate,
 
-	getNode: getNode,
+	getNode,
 
-	nodePart: nodePart,
+	nodePart,
 
-	nodeChildren: nodeChildren,
-	nodeName: nodeName,
-	nodeToExpand: nodeToExpand,
+	nodeChildren,
+	nodeName,
+	nodeToExpand,
 
-	addNode: addNode,
+	addNode,
 
-	getToExpandState: getToExpandState,
-	setToExpandState: setToExpandState,
+	getToExpandState,
+	setToExpandState,
+
+	getContainer,
+
+	containerAttribute,
+	containerAttr: containerAttribute,
 
 };
