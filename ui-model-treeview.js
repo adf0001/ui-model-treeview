@@ -253,9 +253,9 @@ var nodeToExpand = function (el, template, before) {
 /*
 template:{ (outHtml | innerHtml/content | name, toExpand, toExpandTemplate),
 	childrenTemplate, insert } | name.
-container: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
+childrenContainer: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 */
-var addNode = function (elNode, template, container) {
+var addNode = function (elNode, template, childrenContainer) {
 	//arguments
 	if (!template) template = {};
 	else if (typeof template === "string") template = { name: template };
@@ -283,7 +283,7 @@ var addNode = function (elNode, template, container) {
 	}
 	else {
 		//prepare children
-		var elChildren = container
+		var elChildren = childrenContainer
 			? elNode
 			: nodePart(elNode, "tree-children", template.childrenTemplate || true);
 
