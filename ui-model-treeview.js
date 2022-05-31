@@ -83,27 +83,110 @@ var getContainer = function (el) {
 	return null;
 }
 
-//get or set container attribute
-var containerAttribute = function (el, name, value) {
+/*
+get or set container attribute
+	value
+		if value is "undefined", get and return the value;
+			if not exist, return null;
+			else
+				if json is true, return the json object;
+				else return the string;
+		if value is null, remove the attribute;
+		in othercases, set the attribute value as a string, or a json string;
+	json
+		boolean type
+*/
+var containerAttribute = function (el, name, value, json) {
 	var container = getContainer(el);
 	if (!container) return;
 
-	return (typeof value === "undefined")
-		? container.getAttribute(name)		//get
-		: container.setAttribute(name, value);		//set
+	if (typeof value === "undefined") {		//get
+		var v = container.getAttribute(name);
+		if (v === null) return null;	//not exist
+		return json ? JSON.parse(v) : v;
+	}
+	else if (value === null) container.removeAttribute(name);	//remove
+	else container.setAttribute(name, json ? JSON.stringify(value) : value);		//set
 }
 
-//get or set node class state
-var nodeClass = function (el, className, boolValue) {
-	var cl = getNode(el)?.classList;
-	if (!cl) return;
-
-	return (typeof boolValue === "undefined")
-		? cl.contains(className)	//get
-		: (boolValue ? cl.add(className) : cl.remove(className));	//set
+//get node class
+var getNodeClass = function (el, className) {
+	return getNode(el)?.classList?.contains(className);
 }
 
-var selectState = function (el, boolValue) { return nodeClass(el, "tree-selected", boolValue); }
+/*
+set node class
+	toContainer==true && multiple==false:
+		toggle the last, then save node eid to container attribute className+"-eid-last";
+	toContainer==true && multiple==true:
+		add/remove node eid to container attribute className+"-eid-list", as an array json string;
+	
+	value
+		boolean type;
+		when toContainer is true,
+			set true to add to the container attribute;
+			set false to remove from the container attribute;
+*/
+var setNodeClass = function (el, className, value, toContainer, multiple) {
+	var elNode = getNode(el);
+	if (!elNode) return;
+
+	value ? elNode.classList.add(className) : elNode.classList.remove(className);
+
+	if (!toContainer) return;
+
+	var v = containerAttribute(elNode, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
+	var eid = ele_id(elNode);
+	var idx;
+
+	if (multiple) {		//multiple eids
+		if (value) {
+			if (!v) v = [eid];
+			else if (v.indexOf(eid) >= 0) return; 	//already in the array
+			else v.push(eid);
+		}
+		else {
+			if (v && (idx = v.indexOf(eid)) >= 0) v.splice(idx, 1);	//remove
+			else return;	//already not in the array
+		}
+
+		if (v && v.length > 0) containerAttribute(elNode, className + "-eid-list", v, true);
+		else containerAttribute(elNode, className + "-eid-list", null);		//remove
+	}
+	else {		//single eid
+		if (value) {
+			if (v && v !== eid) document.getElementById(v)?.classList?.remove(className);
+			containerAttribute(elNode, className + "-eid-last", eid);
+		}
+		else {
+			if (v === eid) containerAttribute(elNode, className + "-eid-last", null);	//remove
+		}
+	}
+}
+
+//get node or node-list from container attribute
+var getContainerClassNode = function (el, className, multiple) {
+	var elNode = getNode(el);
+	if (!elNode) return;
+
+	var v = containerAttribute(elNode, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
+	if (!v) return;
+
+	if (v instanceof Array) return v.map(v => document.getElementById(v));
+	else return document.getElementById(v);
+}
+
+//shortcut for getNodeClass()/setNodeClass()/getContainerClassNode()
+var nodeClass = function (el, className, boolValue, toOrFromContainer, multiple) {
+	if (typeof boolValue === "undefined") {
+		if (toOrFromContainer) return getContainerClassNode(el, className, multiple);
+		else return getNodeClass(el, className);
+	}
+	else return setNodeClass(el, className, boolValue, toOrFromContainer, multiple);
+}
+
+//shortcut for "tree-selected"
+var selectState = function (el, boolValue, toOrFromContainer, multiple) { return nodeClass(el, "tree-selected", boolValue, toOrFromContainer, multiple); }
 
 /*
 get the direct part element of a tree-node by class name, or create by template.
@@ -279,8 +362,11 @@ module.exports = {
 	containerAttribute,
 	containerAttr: containerAttribute,
 
-	nodeClass,
+	getNodeClass,
+	setNodeClass,
+	getContainerClassNode,
 
+	nodeClass,
 	selectState,
 
 };

@@ -69,13 +69,21 @@ module.exports = {
 		ui_model_treeview.containerAttr(elMy2, "check", 999);
 
 		/*
-		.nodeClass(el, className [, boolValue])		//get or set node class state
-
-			shortcuts:
-				.selectState(el, boolValue)
+		.setNodeClass(el, className, value [, toContainer [, multiple ]] )
 		*/
-		ui_model_treeview.nodeClass(elMy2, "my-class", true);
-		ui_model_treeview.selectState(elMy2, true);
+		ui_model_treeview.setNodeClass(elMy2, "my-class", true, true);
+		ui_model_treeview.setNodeClass(elMy2, "my-class2", true, true, true);
+
+		/*
+		//shortcut for getNodeClass()/setNodeClass()/getContainerClassNode()
+		.nodeClass(el, className, boolValue, toOrFromContainer, multiple)
+
+		shortcuts:
+			//shortcut for "tree-selected"
+			.selectState(el, boolValue, toOrFromContainer, multiple)
+		*/
+		ui_model_treeview.selectState(elMy2, true, true);
+		ui_model_treeview.selectState(elMy2, true, true, true);
 
 		done(!(
 			//.getNode (el)		//get 'tree-node' from self or ancestor of an element
@@ -87,9 +95,15 @@ module.exports = {
 			ui_model_treeview.containerAttr(elMy2, "check") !== 999 &&
 			ui_model_treeview.containerAttr(elMy2, "check") === "999" &&
 
-			ui_model_treeview.selectState(elMy2) === true &&
-			ui_model_treeview.nodeClass(elMy2, "my-class") === true
+			ui_model_treeview.nodeClass(elMy2, "my-class") === true &&
+			ui_model_treeview.nodeClass(elMy2, "my-class", void 0, true) === elNode3 &&
+			ui_model_treeview.nodeClass(elMy2, "my-class2", void 0, true, true)[0] === elNode3 &&
 
+			ui_model_treeview.selectState(elMy2) === true &&
+			ui_model_treeview.selectState(elMy2, void 0, true) === elNode3 &&
+			ui_model_treeview.selectState(elMy2, void 0, true, true)[0] === elNode3 &&
+
+			true
 		));
 	},
 
