@@ -29,7 +29,6 @@ convention:
 
 	* lv1 - basic required;
 	* lv2 - optional, with tool set in this lib;
-		* 'tree-container' can be combined with 'tree-node' or 'tree-children';
 	* lv3 - user defined;
 
 	* the 'class' names are the required properties;
