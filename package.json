@@ -23,6 +23,7 @@
   "homepage": "https://github.com/adf0001/ui-model-treeview#readme",
   "dependencies": {
     "ele-id": "^1.0.2",
+    "element-attribute": "^0.1.2",
     "insert-adjacent-return": "^1.0.1"
   }
 }

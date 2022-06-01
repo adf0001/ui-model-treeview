@@ -37,6 +37,7 @@ convention:
 
 var ele_id = require("ele-id");
 var insert_adjacent_return = require("insert-adjacent-return");
+var element_attribute = require("element-attribute");
 
 var defaultChildrenTemplate = "<div class='tree-children' style='padding-left:1em;'></div>";
 var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable' style='padding:0em 0.5em;font-family:monospace;'>.</span>";
@@ -99,13 +100,7 @@ var containerAttribute = function (el, name, value, json) {
 	var container = getContainer(el);
 	if (!container) return;
 
-	if (typeof value === "undefined") {		//get
-		var v = container.getAttribute(name);
-		if (v === null) return null;	//not exist
-		return json ? JSON.parse(v) : v;
-	}
-	else if (value === null) container.removeAttribute(name);	//remove
-	else container.setAttribute(name, json ? JSON.stringify(value) : value);		//set
+	return element_attribute(container, name, value, json);
 }
 
 //get node class
@@ -134,7 +129,10 @@ var setNodeClass = function (el, className, value, toContainer, multiple) {
 
 	if (!toContainer) return;
 
-	var v = containerAttribute(elNode, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
+	var container = getContainer(el);
+	if (!container) return;
+
+	var v = element_attribute(container, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
 	var eid = ele_id(elNode);
 	var idx;
 
@@ -149,16 +147,16 @@ var setNodeClass = function (el, className, value, toContainer, multiple) {
 			else return;	//already not in the array
 		}
 
-		if (v && v.length > 0) containerAttribute(elNode, className + "-eid-list", v, true);
-		else containerAttribute(elNode, className + "-eid-list", null);		//remove
+		if (v && v.length > 0) element_attribute(container, className + "-eid-list", v, true);
+		else element_attribute(container, className + "-eid-list", null);		//remove
 	}
 	else {		//single eid
 		if (value) {
 			if (v && v !== eid) document.getElementById(v)?.classList?.remove(className);
-			containerAttribute(elNode, className + "-eid-last", eid);
+			element_attribute(container, className + "-eid-last", eid);
 		}
 		else {
-			if (v === eid) containerAttribute(elNode, className + "-eid-last", null);	//remove
+			if (v === eid) element_attribute(container, className + "-eid-last", null);	//remove
 		}
 	}
 }
