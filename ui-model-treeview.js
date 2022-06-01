@@ -39,8 +39,8 @@ var ele_id = require("ele-id");
 var insert_adjacent_return = require("insert-adjacent-return");
 var element_attribute = require("element-attribute");
 
-var defaultChildrenTemplate = "<div class='tree-children' style='padding-left:1em;'></div>";
-var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable' style='padding:0em 0.5em;font-family:monospace;'>.</span>";
+var defaultChildrenTemplate = "<div class='tree-children' style='padding-left:1em;position:relative;'></div>";
+var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable' style='position:absolute;left:0px;padding:0em 0.25em;font-family:monospace;'>.</span>";
 
 //get 'tree-node' from self or ancestor of an element
 var getNode = function (el) {
@@ -293,11 +293,11 @@ var addNode = function (elNode, template, childrenContainer) {
 
 //return null/true/false/"disable"
 var getToExpandState = function (el) {
-	var elExpand = nodeToExpand(el);
-	if (!elExpand) return null;
+	var elToExpand = nodeToExpand(el);
+	if (!elToExpand) return null;
 
-	if (elExpand.classList.contains("tree-disable")) return "disable";
-	if (elExpand.classList.contains("tree-to-collapse")) return false;
+	if (elToExpand.classList.contains("tree-disable")) return "disable";
+	if (elToExpand.classList.contains("tree-to-collapse")) return false;
 	return true;
 }
 
@@ -312,21 +312,22 @@ set state of 'tree-to-expand'.
 			true	- set css style 'display' to 'none' or '', when state is bool-value;
 			false	- do not touch 'tree-children';
 			"none"/""/string	- set css style 'display' value;
+	
+	return the to-expand element;
 */
 var setToExpandState = function (el, state, text, updateChildren) {
 	//get or create
-	var elExpand = nodePart(el, "tree-to-expand", defaultToExpandTemplate, true);
+	var elToExpand = nodePart(el, "tree-to-expand", defaultToExpandTemplate, true);
 
 	//get current state
-	var curState = !elExpand.classList.contains("tree-to-collapse");
-	var curDisable = elExpand.classList.contains("tree-disable");
-	//var disable= curDisable;
+	var curState = !elToExpand.classList.contains("tree-to-collapse");
+	var curDisable = elToExpand.classList.contains("tree-disable");
 
 	//disable
 	if (state === "disable") {
 		if (!curDisable) {
-			elExpand.classList.add("tree-disable");
-			elExpand.textContent = text || ".";
+			elToExpand.classList.add("tree-disable");
+			elToExpand.textContent = text || ".";
 			curDisable = true;
 		}
 	}
@@ -334,13 +335,13 @@ var setToExpandState = function (el, state, text, updateChildren) {
 		//enabled state
 		if (state === "toggle") state = !curState;
 
-		if (state) elExpand.classList.remove("tree-to-collapse");
-		else elExpand.classList.add("tree-to-collapse");
+		if (state) elToExpand.classList.remove("tree-to-collapse");
+		else elToExpand.classList.add("tree-to-collapse");
 
-		if (curDisable || state != curState || text) elExpand.textContent = text || (state ? "+" : "-");
+		if (curDisable || state != curState || text) elToExpand.textContent = text || (state ? "+" : "-");
 
 		if (curDisable) {
-			elExpand.classList.remove("tree-disable");	//remove disable
+			elToExpand.classList.remove("tree-disable");	//remove disable
 			curDisable = false;
 		}
 	}
@@ -353,6 +354,8 @@ var setToExpandState = function (el, state, text, updateChildren) {
 
 	if (typeof updateChildren === "string") elChildren.style.display = updateChildren;
 	else if (updateChildren && !curDisable) elChildren.style.display = state ? "none" : "";
+
+	return elToExpand;
 }
 
 //module exports
