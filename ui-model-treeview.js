@@ -303,38 +303,58 @@ var getToExpandState = function (el) {
 	return true;
 }
 
-//set state of 'tree-to-expand', but do not touch 'tree-children'.
-//state: bool, or string "toggle" or "disable"
-var setToExpandState = function (el, state, text) {
+/*
+set state of 'tree-to-expand'.
+
+	state:
+		bool, or string "toggle" or "disable"
+
+	updateChildren:
+		update children part flag; default true;
+			true	- set css style 'display' to 'none' or '', when state is bool-value;
+			false	- do not touch 'tree-children';
+			"none"/""/string	- set css style 'display' value;
+*/
+var setToExpandState = function (el, state, text, updateChildren) {
 	//get or create
 	var elExpand = nodePart(el, "tree-to-expand", defaultToExpandTemplate, true);
 
 	//get current state
-	var disable = elExpand.classList.contains("tree-disable");
 	var curState = !elExpand.classList.contains("tree-to-collapse");
+	var curDisable = elExpand.classList.contains("tree-disable");
+	//var disable= curDisable;
 
 	//disable
 	if (state === "disable") {
-		if (disable) return;
-		elExpand.classList.add("tree-disable");
-		elExpand.textContent = text || ".";
-		return;
-	}
-
-	//enabled state
-
-	if (disable) { elExpand.classList.remove("tree-disable"); }	//remove disable
-
-	if (state === "toggle") state = !curState;
-
-	if (state) {
-		elExpand.classList.remove("tree-to-collapse");
-		if (disable || state != curState) elExpand.textContent = text || "+";
+		if (!curDisable) {
+			elExpand.classList.add("tree-disable");
+			elExpand.textContent = text || ".";
+			curDisable = true;
+		}
 	}
 	else {
-		elExpand.classList.add("tree-to-collapse");
-		if (disable || state != curState) elExpand.textContent = text || "-";
+		//enabled state
+		if (state === "toggle") state = !curState;
+
+		if (state) elExpand.classList.remove("tree-to-collapse");
+		else elExpand.classList.add("tree-to-collapse");
+
+		if (curDisable || state != curState || text) elExpand.textContent = text || (state ? "+" : "-");
+
+		if (curDisable) {
+			elExpand.classList.remove("tree-disable");	//remove disable
+			curDisable = false;
+		}
 	}
+
+	//update children
+	var elChildren = nodePart(el, "tree-children");
+	if (!elChildren) return;
+
+	if (typeof updateChildren === "undefined") updateChildren = true;
+
+	if (typeof updateChildren === "string") elChildren.style.display = updateChildren;
+	else if (updateChildren && !curDisable) elChildren.style.display = state ? "none" : "";
 }
 
 //module exports
