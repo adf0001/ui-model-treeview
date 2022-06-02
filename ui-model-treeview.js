@@ -259,7 +259,7 @@ var nodeToExpand = function (el, template, before) {
 }
 
 /*
-template:{ (outHtml | innerHtml/content | name, toExpand, toExpandTemplate),
+template:{ (outHtml | innerHtml/content | name | nameHtml, toExpand, toExpandTemplate),
 	childrenTemplate, insert } | name.
 childrenContainer: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 */
@@ -279,7 +279,9 @@ var addNode = function (elNode, template, childrenContainer) {
 		}
 		else {
 			if (template.toExpand) a[a.length] = template.toExpandTemplate || defaultToExpandTemplate;
-			a[a.length] = "<span class='tree-name'>" + (template.name || "item") + "</span>";
+
+			//fast nameHtml, not safe;
+			a[a.length] = "<span class='tree-name'>" + (template.nameHtml || "item") + "</span>";
 		}
 		a[a.length] = "</div>";
 		template.outHtml = a.join("");
@@ -299,6 +301,13 @@ var addNode = function (elNode, template, childrenContainer) {
 		el = insert_adjacent_return.append(elChildren, template.outHtml);
 	}
 	if (!el.classList.contains("tree-node")) el.classList.add("tree-node");
+
+	//set safe name
+	if (template.name && !template.nameHtml) {
+		var elName = el.querySelector("#" + ele_id(el) + " > .tree-name");
+		if (elName) elName.textContent = template.name;
+	}
+
 	return el;
 }
 

@@ -35,6 +35,18 @@ module.exports = {
 			}
 		);
 
+		ui_model_treeview.addNode(elNode3,
+			{
+				name: "<b>bbb</b>",
+			}
+		);
+		ui_model_treeview.addNode(elNode3,
+			{
+				name: "not work",
+				nameHtml: "<b>bbb2</b>",
+			}
+		);
+
 		/*
 		.nodePart(el, className, template, before)
 			template: { (outerHtml | innerHtml/content | createByDefault) } 
