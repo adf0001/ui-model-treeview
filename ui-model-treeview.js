@@ -198,6 +198,71 @@ var selectedState = function (el, boolValue, toOrFromContainer, multiple) { retu
 var getSelected = function (el, fromContainer, multiple) { return nodeClass(el, "tree-selected", void 0, fromContainer, multiple); }
 
 /*
+listen click event by setting container.onclick.
+	options:
+		.multipleSelection
+			boolean type; multiple selection flag;
+
+		.collapseSelection
+			false		//default
+				don't touch selection; 
+			true/"remove"
+				remove the collapsed node from the selection;
+			"change"
+				remove the collapsed node from the selection;
+				and add the node that casused collapsing to the selection;
+
+		.toggleSelection
+			boolean type; selection can be canceled by another click;
+		
+*/
+var listenOnClick = function (el, options) {
+	var container = getContainer(el);
+	if (!container) return;
+
+	var multipleSelection = options?.multipleSelection;
+	var collapseSelection = options?.collapseSelection;
+	var toggleSelection = options?.toggleSelection;
+
+	container.onclick = function (evt) {
+		var elTarget = evt.target;
+
+		if (elTarget.classList.contains("tree-to-expand")) {
+			var state = getToExpandState(elTarget), elChildren, elList;
+			if (state === "disable") return;
+
+			setToExpandState(elTarget, "toggle");
+			state = !state;
+
+			if (!state || !collapseSelection ||
+				!(elChildren = nodeChildren(elTarget)) || !elChildren.hasChildNodes() ||
+				!(elList = getSelected(elTarget, true, multipleSelection))
+			) return;
+
+			var done = false;
+			((elList instanceof Array) ? elList : [elList])
+				.forEach(v => {
+					if (elChildren.contains(v)) {
+						selectedState(v, false, true, multipleSelection);
+						done = true;
+					}
+				});
+
+			if (done && collapseSelection === "change") {
+				selectedState(elTarget, false, true, multipleSelection);
+				clickName(elTarget, false, true, multipleSelection);	//may notify
+			}
+		}
+		else {
+			var elName = nodeName(elTarget);
+			if (elName && elName.contains(elTarget)) {	//click on name or inside name
+				selectedState(elTarget, toggleSelection ? !(getSelected(elTarget)) : true, true, multipleSelection);
+			}
+		}
+	}
+}
+
+/*
 get the direct part element of a tree-node by class name, or create by template.
 
 template: { (outerHtml | innerHtml/content | createByDefault) } | innerHtml | createByDefault===true
@@ -381,7 +446,7 @@ var setToExpandState = function (el, state, text, updateChildren) {
 
 	//update children
 	var elChildren = nodePart(el, "tree-children");
-	if (!elChildren) return;
+	if (!elChildren) return elToExpand;
 
 	if (typeof updateChildren === "undefined") updateChildren = true;
 
@@ -457,5 +522,7 @@ module.exports = {
 
 	clickName,
 	clickToExpand,
+
+	listenOnClick,
 
 };

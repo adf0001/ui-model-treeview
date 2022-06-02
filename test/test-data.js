@@ -7,7 +7,18 @@ module.exports = {
 	"ui_model_treeview": function (done) {
 		if (typeof window === "undefined") throw "disable for nodejs";
 
-		document.getElementById('divResult3').innerHTML = '<span class="-ht-cmd" id="cmdClick">click</span>' +
+		document.getElementById('divResult3').innerHTML =
+			'<span class="-ht-cmd" id="cmdEnable">enable</span> ' +
+			'<span class="-ht-cmd" id="cmdClick">click</span> ' +
+			'<label><input id=chkMultiple type=checkbox>multiple</label> ' +
+			'<label><input id=chkToggleSelection type=checkbox>toggle selection</label> ' +
+			'<select id=selCollapse>' +
+			'	<optgroup  label="collapse select"></optgroup>' +
+			'	<option value="false">false</option>' +
+			'	<option value="true">true/remove</option>' +
+			'	<option value="change">change</option>' +
+			'</select> ' +
+			'<span id="spMsg"></span> ' +
 			'<div class="tree-container" id="tree1"></div>';
 
 		var el = document.getElementById('tree1');
@@ -61,24 +72,73 @@ module.exports = {
 		var elMy1 = ui_model_treeview.nodePart(elNode3, "my-cls");
 		var elMy2 = ui_model_treeview.nodePart(elNode3, "my-cls2", true);	//create part if not exist, by default
 
-		el.onclick = function (evt) {
-			var target = evt.target;
+		el.addEventListener("click", function () {
+			setTimeout(() => {
+				document.getElementById("spMsg").textContent = el.getAttribute("tree-selected-eid-last") +
+					" / " + el.getAttribute("tree-selected-eid-list");
 
-			if (target.classList.contains("tree-to-expand")) {
+			}, 0);	//delay for linsten sequence
+		});
 
-				/*
-				.setToExpandState(el, state, text)		//set state of 'tree-to-expand', but do not touch 'tree-children'.
-					state: bool, or string "toggle" or "disable"
-				*/
-				ui_model_treeview.setToExpandState(target, "toggle");
+		function setOnClick() {
+			var cs = document.getElementById("selCollapse").value;
+			if (cs === "true") cs = true;
+			else if (cs === "false") cs = false;
+			//alert(cs);
 
-				//.getToExpandState(el)		//return null/true/false/"disable"
-				var state = ui_model_treeview.getToExpandState(target);
-				//target.style.background = state ? "lime" : "yellow";
-			}
-		};
+			/*
+			.listenOnClick(el, options)		//listen click event by setting container.onclick.
+				options:
+					.multipleSelection
+						multiple selection;
+
+					.collapseSelection
+						false		//default
+							don't touch selection; 
+						true/"remove"
+							remove the collapsed node from the selection;
+						"change"
+							remove the collapsed node from the selection;
+							and add the node that casused collapsing to the selection;
+
+					.toggleSelection
+						boolean type; selection can be canceled by another click;
+			*/
+			ui_model_treeview.listenOnClick(el, {
+				multipleSelection: document.getElementById("chkMultiple").checked,
+				collapseSelection: cs,
+				toggleSelection: document.getElementById("chkToggleSelection").checked,
+			});
+
+		}
+		setOnClick();
+
+		document.getElementById("chkMultiple").onclick = setOnClick;
+		document.getElementById("selCollapse").onchange = setOnClick;
+		document.getElementById("chkToggleSelection").onclick = setOnClick;
+
+		document.getElementById("cmdEnable").onclick = function () {
+			/*
+			.setToExpandState(el, state, text, updateChildren)		//set state of 'tree-to-expand'.
+
+				state:
+					bool, or string "toggle" or "disable"
+
+				updateChildren:
+					update children part flag; default true;
+						true	- set css style 'display' to 'none' or '', when state is bool-value;
+						false	- do not touch 'tree-children';
+						"none"/""/string	- set css style 'display' value;
+				
+				return the to-expand element;
+
+			.getToExpandState(el)		//return null/true/false/"disable"
+			*/
+			ui_model_treeview.setToExpandState(elNode2, "toggle");
+		}
 
 		document.getElementById("cmdClick").onclick = function () {
+			//.clickPart(el, className, delay)
 			ui_model_treeview.clickToExpand(elNode2);
 		}
 

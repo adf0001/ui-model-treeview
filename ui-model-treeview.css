@@ -22,3 +22,7 @@
 .tree-container .tree-node .tree-to-expand.tree-disable {
 	background-color: transparent;
 }
+
+.tree-container .tree-node.tree-selected > .tree-name {
+	background-color: lime;
+}
