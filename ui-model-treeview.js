@@ -396,7 +396,7 @@ var insertNode = function (elNode, options, toNext) {
 	var ni = getNodeInfo(elNode, true);	//only tree-node
 	if (!ni) return null;
 
-	elNode = ni[0];
+	elNode = ni[INFO_NODE];
 
 	//arguments
 	if (!options) options = { insert: true };
@@ -485,6 +485,9 @@ var setToExpandState = function (el, state, text, updateChildren) {
 	return elToExpand;
 }
 
+var INFO_NODE = 0;
+var INFO_TYPE = 1;
+
 //get a NodeInfo, that is, [elNode]/[elChildren,"children"]/[elContainer, "container"]
 var getNodeInfo = function (el, onlyTreeNode) {
 	if (!el) return null;
@@ -492,7 +495,7 @@ var getNodeInfo = function (el, onlyTreeNode) {
 	//tree-node filter
 	if (onlyTreeNode) {
 		var ni = getNodeInfo(el);
-		return (ni && !ni[1]) ? ni : null;
+		return (ni && !ni[INFO_TYPE]) ? ni : null;
 	}
 
 	if (el instanceof Array) return el;		//already a NodeInfo
@@ -551,6 +554,9 @@ module.exports = {
 
 	selectedState,
 	getSelected,
+
+	INFO_NODE,
+	INFO_TYPE,
 
 	getNodeInfo,
 

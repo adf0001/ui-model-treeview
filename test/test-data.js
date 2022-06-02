@@ -194,6 +194,8 @@ module.exports = {
 		var nf3 = ui_model_treeview.getNodeInfo(el);	//the container
 		var nf3b = ui_model_treeview.getNodeInfo(el, true);
 
+		var { INFO_NODE, INFO_TYPE } = ui_model_treeview;
+
 		done(!(
 			//.getNode (el)		//get 'tree-node' from self or ancestor of an element
 			ui_model_treeview.getNode(elMy1) === elNode3 &&
@@ -216,18 +218,18 @@ module.exports = {
 			ui_model_treeview.getSelected(elMy2, true) === elNode3 &&
 			ui_model_treeview.getSelected(elMy2, true, true)[0] === elNode3 &&
 
-			nf1[0] === elNode3 &&
-			!nf1[1] &&
-			nf1b[0] === elNode3 &&
-			!nf1b[1] &&
+			nf1[INFO_NODE] === elNode3 &&
+			!nf1[INFO_TYPE] &&
+			nf1b[INFO_NODE] === elNode3 &&
+			!nf1b[INFO_TYPE] &&
 			nf1 === nf1c &&
 
-			nf2[0] === elNode2Children &&
-			nf2[1] === "children" &&
+			nf2[INFO_NODE] === elNode2Children &&
+			nf2[INFO_TYPE] === "children" &&
 			nf2b === null &&
 
-			nf3[0] === el &&
-			nf3[1] === "container" &&
+			nf3[INFO_NODE] === el &&
+			nf3[INFO_TYPE] === "container" &&
 			nf3b === null &&
 
 			true
