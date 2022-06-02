@@ -163,9 +163,6 @@ var setNodeClass = function (el, className, value, toContainer, multiple) {
 
 //get node or node-list from container attribute
 var getContainerClassNode = function (el, className, multiple) {
-	var elNode = getNode(el);
-	if (!elNode) return;
-
 	var container = getContainer(el);
 	if (!container) return;
 
