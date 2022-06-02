@@ -1,0 +1,24 @@
+.tree-container {
+	position: relative;
+}
+
+.tree-container .tree-node .tree-children {
+	position: relative;
+	padding-left: 1em;
+}
+
+.tree-container .tree-node .tree-to-expand {
+	position: absolute;
+	left: 0px;
+	font-family: monospace;
+	padding: 0em 0.25em;
+	cursor: default;
+}
+
+.tree-container .tree-node .tree-to-expand:hover {
+	background-color: #dddddd;
+}
+
+.tree-container .tree-node .tree-to-expand.tree-disable {
+	background-color: transparent;
+}

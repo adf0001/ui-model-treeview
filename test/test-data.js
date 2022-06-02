@@ -61,7 +61,7 @@ module.exports = {
 
 				//.getToExpandState(el)		//return null/true/false/"disable"
 				var state = ui_model_treeview.getToExpandState(target);
-				target.style.background = state ? "lime" : "yellow";
+				//target.style.background = state ? "lime" : "yellow";
 			}
 		};
 

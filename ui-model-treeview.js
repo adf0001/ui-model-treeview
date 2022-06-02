@@ -39,8 +39,11 @@ var ele_id = require("ele-id");
 var insert_adjacent_return = require("insert-adjacent-return");
 var element_attribute = require("element-attribute");
 
-var defaultChildrenTemplate = "<div class='tree-children' style='padding-left:1em;position:relative;'></div>";
-var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable' style='position:absolute;left:0px;padding:0em 0.25em;font-family:monospace;'>.</span>";
+var defaultChildrenTemplate = "<div class='tree-children'></div>";
+var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable'>.</span>";
+
+var add_css_text = require("add-css-text");
+add_css_text(require("./ui-model-treeview.css"));
 
 //get 'tree-node' from self or ancestor of an element
 var getNode = function (el) {
