@@ -38,6 +38,7 @@ convention:
 var ele_id = require("ele-id");
 var insert_adjacent_return = require("insert-adjacent-return");
 var element_attribute = require("element-attribute");
+var dispatch_event_by_name = require("dispatch-event-by-name");
 
 var defaultChildrenTemplate = "<div class='tree-children'></div>";
 var defaultToExpandTemplate = "<span class='tree-to-expand tree-disable'>.</span>";
@@ -258,6 +259,18 @@ var nodeToExpand = function (el, template, before) {
 	return nodePart(el, "tree-to-expand", template, (typeof before === "undefined") ? true : before);
 }
 
+//click part tool
+var clickPart = function (el, className, delay) {
+	el = nodePart(el, className);
+	if (!el) return;
+
+	dispatch_event_by_name.click(el, (typeof delay === "number") ? delay : (void 0));
+}
+
+//shortcuts of .clickPart()
+var clickName = function (el, delay) { return clickPart(el, "tree-name", delay); }
+var clickToExpand = function (el, delay) { return clickPart(el, "tree-to-expand", delay); }
+
 /*
 template:{ (outHtml | innerHtml/content | name | nameHtml, toExpand, toExpandTemplate),
 	childrenTemplate, insert } | name.
@@ -439,5 +452,10 @@ module.exports = {
 	getSelected,
 
 	getNodeInfo,
+
+	clickPart,
+
+	clickName,
+	clickToExpand,
 
 };

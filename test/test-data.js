@@ -7,9 +7,10 @@ module.exports = {
 	"ui_model_treeview": function (done) {
 		if (typeof window === "undefined") throw "disable for nodejs";
 
-		document.getElementById('divResult3').innerHTML = '<div class="tree-container"></div>';
+		document.getElementById('divResult3').innerHTML = '<span class="-ht-cmd" id="cmdClick">click</span>' +
+			'<div class="tree-container" id="tree1"></div>';
 
-		var el = document.getElementById('divResult3').firstChild;
+		var el = document.getElementById('tree1');
 
 		/*
 		.addNode(elNode, template, container)
@@ -76,6 +77,10 @@ module.exports = {
 				//target.style.background = state ? "lime" : "yellow";
 			}
 		};
+
+		document.getElementById("cmdClick").onclick = function () {
+			ui_model_treeview.clickToExpand(elNode2);
+		}
 
 		//.containerAttribute(el, name [, value])		//get or set container attribute
 		ui_model_treeview.containerAttr(elMy2, "check", 999);
@@ -149,6 +154,16 @@ module.exports = {
 
 			true
 		));
+	},
+
+	"check exports": function (done) {
+		for (var i in ui_model_treeview) {
+			if (typeof ui_model_treeview[i] === "undefined") {
+				done("undefined: " + i);
+				return;
+			}
+		}
+		done(false);
 	},
 
 };
