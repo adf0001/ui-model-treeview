@@ -24,10 +24,19 @@ module.exports = {
 		var el = document.getElementById('tree1');
 
 		/*
-		.addNode(elNode, template, container)
-			template:{ (outHtml | innerHtml/content | name, toExpand, toExpandTemplate),
+		.addNode(elNode, options, childrenContainer)
+			options:{ (outHtml | innerHtml/content | name, toExpand, toExpandTemplate),
 				childrenTemplate, insert } | name.
-			container: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
+			childrenContainer: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
+		
+		shortcuts:
+			.add(elNode, options, childrenContainer)
+
+			.insertNode(elNode, options, toNext)
+			.insert(elNode, options, toNext)
+
+			.insertNodeToNext(elNode, options)
+			.insertNext(elNode, options)
 		*/
 		var elNode1 = ui_model_treeview.addNode(el, "aaa", true);	//add by 'name'
 
@@ -40,10 +49,19 @@ module.exports = {
 			}
 		);
 
-		var elNode4 = ui_model_treeview.addNode(elNode3,	//by template.insertAt
+		var elNode4 = ui_model_treeview.insert(elNode3,	//by template.insertAt
 			{
 				content: "<span class='tree-name'>eeee</span><span class='my-cls'>fff</span>",
-				insert: true,
+			}
+		);
+		var elNode4b = ui_model_treeview.insertNext(elNode3,
+			{
+				content: "<span class='tree-name'>by insert next</span>",
+			}
+		);
+		var elNode4c = ui_model_treeview.insertNext(elNode3,
+			{
+				content: "<span class='tree-name'>by insert next 2</span>",
 			}
 		);
 

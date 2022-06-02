@@ -337,57 +337,86 @@ var clickName = function (el, delay) { return clickPart(el, "tree-name", delay);
 var clickToExpand = function (el, delay) { return clickPart(el, "tree-to-expand", delay); }
 
 /*
-template:{ (outHtml | innerHtml/content | name | nameHtml, toExpand, toExpandTemplate),
+options:{ (outHtml | innerHtml/content | name | nameHtml, toExpand, toExpandTemplate),
 	childrenTemplate, insert } | name.
 childrenContainer: set true if the 'elNode' is already a children container; ignored if `.insert` is true;
 */
-var addNode = function (elNode, template, childrenContainer) {
+var addNode = function (elNode, options, childrenContainer) {
 	//arguments
-	if (!template) template = {};
-	else if (typeof template === "string") template = { name: template };
+	if (!options) options = {};
+	else if (typeof options === "string") options = { name: options };
 
-	template.innerHtml = template.innerHtml || template.content;
+	options.innerHtml = options.innerHtml || options.content;
 
 	//build outHtml
-	if (!template.outHtml) {
+	if (!options.outHtml) {
 		var a = [];
 		a[a.length] = "<div class='tree-node'>";
-		if (template.innerHtml) {
-			a[a.length] = template.innerHtml;
+		if (options.innerHtml) {
+			a[a.length] = options.innerHtml;
 		}
 		else {
-			if (template.toExpand) a[a.length] = template.toExpandTemplate || defaultToExpandTemplate;
+			if (options.toExpand) a[a.length] = options.toExpandTemplate || defaultToExpandTemplate;
 
 			//fast nameHtml, not safe;
-			a[a.length] = "<span class='tree-name'>" + (template.nameHtml || "item") + "</span>";
+			a[a.length] = "<span class='tree-name'>" + (options.nameHtml || "item") + "</span>";
 		}
 		a[a.length] = "</div>";
-		template.outHtml = a.join("");
+		options.outHtml = a.join("");
 	}
 
 	var el;
-	if (template.insert) {
-		el = insert_adjacent_return.prependOut(getNode(elNode), template.outHtml);
+	if (options.insert) {
+		el = insert_adjacent_return.prependOut(getNode(elNode), options.outHtml);
 	}
 	else {
 		//prepare children
 		var elChildren = childrenContainer
 			? elNode
-			: nodePart(elNode, "tree-children", template.childrenTemplate || true);
+			: nodePart(elNode, "tree-children", options.childrenTemplate || true);
 
 		//add
-		el = insert_adjacent_return.append(elChildren, template.outHtml);
+		el = insert_adjacent_return.append(elChildren, options.outHtml);
 	}
 	if (!el.classList.contains("tree-node")) el.classList.add("tree-node");
 
 	//set safe name
-	if (template.name && !template.nameHtml) {
+	if (options.name && !options.nameHtml) {
 		var elName = el.querySelector("#" + ele_id(el) + " > .tree-name");
-		if (elName) elName.textContent = template.name;
+		if (elName) elName.textContent = options.name;
 	}
 
 	return el;
 }
+
+//shortcuts for .addNode()
+
+var insertNode = function (elNode, options, toNext) {
+	//node info
+	var ni = getNodeInfo(elNode, true);	//only tree-node
+	if (!ni) return null;
+
+	elNode = ni[0];
+
+	//arguments
+	if (!options) options = { insert: true };
+	else if (typeof options === "string") options = { name: options, insert: true };
+	else {
+		options = Object.create(options);
+		options.insert = true;
+	}
+
+	if (toNext) {
+		if (elNode.nextSibling) return addNode(elNode.nextSibling, options);
+		else {
+			options.insert = false;
+			return addNode(elNode.parentNode, options);
+		}
+	}
+	else return addNode(elNode, options);
+}
+
+var insertNodeToNext = function (elNode, options) { return insertNode(elNode, options, true); }
 
 //return null/true/false/"disable"
 var getToExpandState = function (el) {
@@ -462,7 +491,7 @@ var getNodeInfo = function (el, onlyTreeNode) {
 
 	//tree-node filter
 	if (onlyTreeNode) {
-		var ni = this.getNodeInfo(el);
+		var ni = getNodeInfo(el);
 		return (ni && !ni[1]) ? ni : null;
 	}
 
@@ -498,6 +527,13 @@ module.exports = {
 	nodeToExpand,
 
 	addNode,
+
+	insertNode,
+	insertNodeToNext,
+
+	add: addNode,
+	insert: insertNode,
+	insertNext: insertNodeToNext,
 
 	getToExpandState,
 	setToExpandState,
