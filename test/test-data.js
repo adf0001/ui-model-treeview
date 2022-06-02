@@ -80,10 +80,24 @@ module.exports = {
 
 		shortcuts:
 			//shortcut for "tree-selected"
-			.selectState(el, boolValue, toOrFromContainer, multiple)
+			.selectedState(el, boolValue, toOrFromContainer, multiple)
+			.getSelected(el, fromContainer, multiple)
 		*/
-		ui_model_treeview.selectState(elMy2, true, true);
-		ui_model_treeview.selectState(elMy2, true, true, true);
+		ui_model_treeview.selectedState(elMy2, true, true);
+		ui_model_treeview.selectedState(elMy2, true, true, true);
+
+		//.getNodeInfo(elNode, onlyTreeNode)
+		//get a NodeInfo, that is, [elNode]/[elChildren,"children"]/[elContainer, "container"]
+		var nf1 = ui_model_treeview.getNodeInfo(elMy2);
+		var nf1b = ui_model_treeview.getNodeInfo(elMy2, true);
+		var nf1c = ui_model_treeview.getNodeInfo(nf1, true);
+
+		var elNode2Children = ui_model_treeview.nodeChildren(elNode2);	//a children part
+		var nf2 = ui_model_treeview.getNodeInfo(elNode2Children);
+		var nf2b = ui_model_treeview.getNodeInfo(elNode2Children, true);
+
+		var nf3 = ui_model_treeview.getNodeInfo(el);	//the container
+		var nf3b = ui_model_treeview.getNodeInfo(el, true);
 
 		done(!(
 			//.getNode (el)		//get 'tree-node' from self or ancestor of an element
@@ -99,9 +113,27 @@ module.exports = {
 			ui_model_treeview.nodeClass(elMy2, "my-class", void 0, true) === elNode3 &&
 			ui_model_treeview.nodeClass(elMy2, "my-class2", void 0, true, true)[0] === elNode3 &&
 
-			ui_model_treeview.selectState(elMy2) === true &&
-			ui_model_treeview.selectState(elMy2, void 0, true) === elNode3 &&
-			ui_model_treeview.selectState(elMy2, void 0, true, true)[0] === elNode3 &&
+			ui_model_treeview.selectedState(elMy2) === true &&
+			ui_model_treeview.selectedState(elMy2, void 0, true) === elNode3 &&
+			ui_model_treeview.selectedState(elMy2, void 0, true, true)[0] === elNode3 &&
+
+			ui_model_treeview.getSelected(elMy2) === true &&
+			ui_model_treeview.getSelected(elMy2, true) === elNode3 &&
+			ui_model_treeview.getSelected(elMy2, true, true)[0] === elNode3 &&
+
+			nf1[0] === elNode3 &&
+			!nf1[1] &&
+			nf1b[0] === elNode3 &&
+			!nf1b[1] &&
+			nf1 === nf1c &&
+
+			nf2[0] === elNode2Children &&
+			nf2[1] === "children" &&
+			nf2b === null &&
+
+			nf3[0] === el &&
+			nf3[1] === "container" &&
+			nf3b === null &&
 
 			true
 		));

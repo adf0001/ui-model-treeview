@@ -166,7 +166,17 @@ var getContainerClassNode = function (el, className, multiple) {
 	var elNode = getNode(el);
 	if (!elNode) return;
 
-	var v = containerAttribute(elNode, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
+	var container = getContainer(el);
+	if (!container) return;
+
+	if (typeof multiple === "undefined") {
+		//check multiple by the existence of the attribute
+		if (container.hasAttribute(className + "-eid-last")) multiple = false;
+		else if (container.hasAttribute(className + "-eid-list")) multiple = true;
+		else return;
+	}
+
+	var v = element_attribute(container, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
 	if (!v) return;
 
 	if (v instanceof Array) return v.map(v => document.getElementById(v));
@@ -183,7 +193,8 @@ var nodeClass = function (el, className, boolValue, toOrFromContainer, multiple)
 }
 
 //shortcut for "tree-selected"
-var selectState = function (el, boolValue, toOrFromContainer, multiple) { return nodeClass(el, "tree-selected", boolValue, toOrFromContainer, multiple); }
+var selectedState = function (el, boolValue, toOrFromContainer, multiple) { return nodeClass(el, "tree-selected", boolValue, toOrFromContainer, multiple); }
+var getSelected = function (el, fromContainer, multiple) { return nodeClass(el, "tree-selected", void 0, fromContainer, multiple); }
 
 /*
 get the direct part element of a tree-node by class name, or create by template.
@@ -358,6 +369,33 @@ var setToExpandState = function (el, state, text, updateChildren) {
 	return elToExpand;
 }
 
+//get a NodeInfo, that is, [elNode]/[elChildren,"children"]/[elContainer, "container"]
+var getNodeInfo = function (el, onlyTreeNode) {
+	if (!el) return null;
+
+	//tree-node filter
+	if (onlyTreeNode) {
+		var ni = this.getNodeInfo(el);
+		return (ni && !ni[1]) ? ni : null;
+	}
+
+	if (el instanceof Array) return el;		//already a NodeInfo
+	else if (typeof el === "string") el = document.getElementById(el);	//ensure an dom element
+
+	if (el) {
+		if (el.classList.contains("tree-container")) return [el, "container"];
+		if (el.classList.contains("tree-children")) return [el, "children"];
+
+		el = getNode(el);	//get the tree-node
+	}
+
+	if (!el) {
+		console.log("invalid node");
+		return null;
+	}
+	return [el];
+}
+
 //module exports
 
 module.exports = {
@@ -387,6 +425,10 @@ module.exports = {
 	getContainerClassNode,
 
 	nodeClass,
-	selectState,
+
+	selectedState,
+	getSelected,
+
+	getNodeInfo,
 
 };
