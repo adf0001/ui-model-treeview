@@ -61,7 +61,9 @@ function cacheContainerId(elArray, containerId) {
 	if (elArray.length) elArray.forEach(v => v.setAttribute("tree-container-id", containerId));
 }
 
-//get 'tree-container'
+/*
+get element of 'tree-container'
+*/
 var getContainer = function (el) {
 	if (typeof el === "string") el = document.getElementById(el);
 
@@ -481,6 +483,7 @@ set state of 'tree-to-expand'.
 var setToExpandState = function (el, state, text, updateChildren) {
 	//get or create
 	var elToExpand = nodePart(el, "tree-to-expand", defaultToExpandTemplate, true);
+	if (!elToExpand) return;
 
 	//get current state
 	var curState = !elToExpand.classList.contains("tree-to-collapse");
@@ -551,6 +554,62 @@ var getNodeInfo = function (el, onlyTreeNode) {
 	return [el];
 }
 
+/*
+remove node
+	options:
+		.onlyChildren
+			set true to remove only the children, not the elNode itself;
+
+		.removeEmptyChildren
+			set true remove empty tree-children;
+
+return true if finished
+*/
+var removeNode = function (elNode, options) {
+	//for elNode array
+	if (elNode instanceof Array) {
+		var anyReturn;
+		elNode.forEach(v => { anyReturn = removeNode(v, options) || anyReturn; });
+		return anyReturn;
+	}
+
+	//arguments
+	var onlyChildren = options?.onlyChildren;
+
+	var ni = getNodeInfo(elNode);
+	if (!ni) return;
+	if (ni[INFO_TYPE] && !onlyChildren) return;
+
+	elNode = ni[INFO_NODE];
+
+	//get dom parent element
+	var elParent = onlyChildren ? (ni[INFO_TYPE] ? elNode : nodeChildren(elNode)) : elNode.parentNode;
+	if (!elParent) return;
+
+	//unselect
+	unselectInElement(elNode, !onlyChildren, "both");
+
+	//remove
+	if (onlyChildren) elParent.innerHTML = "";	//remove dom childrens
+	else elParent.removeChild(elNode);	//remove single dom element
+
+	//update parent empty children state
+	if (elParent && !elParent.hasChildNodes() && elParent !== getContainer(elNode)) {
+		elParent = getNode(elParent);
+		if (!elParent) return true;	//the later in elNode array may be removed, and elParent may be null;
+
+		setToExpandState(elParent, "disable");
+
+		if (options?.removeEmptyChildren) {
+			//remove empty children
+			var elChildren = nodeChildren(elParent);
+			if (elChildren) elChildren.parentNode.removeChild(elChildren);
+		}
+	}
+
+	return true;
+}
+
 //module exports
 
 module.exports = {
@@ -604,5 +663,8 @@ module.exports = {
 	clickToExpand,
 
 	listenOnClick,
+
+	removeNode,
+	remove: removeNode,
 
 };

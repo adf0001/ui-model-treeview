@@ -19,6 +19,7 @@ module.exports = {
 			'	<option value="change">change</option>' +
 			'</select> ' +
 			'<span class="-ht-cmd" id="cmdClearSelect">clear selection</span> ' +
+			'<span class="-ht-cmd" id="cmdRemove">remove</span> ' +
 			'<span id="spMsg"></span> ' +
 			'<div class="tree-container" id="tree1"></div>';
 
@@ -154,6 +155,12 @@ module.exports = {
 			.getToExpandState(el)		//return null/true/false/"disable"
 			*/
 			ui_model_treeview.setToExpandState(elNode2, "toggle");
+		}
+
+		document.getElementById("cmdRemove").onclick = function () {
+			var sel = ui_model_treeview.getSelected(elNode2, true);
+
+			ui_model_treeview.removeNode(sel);
 		}
 
 		document.getElementById("cmdClick").onclick = function () {
