@@ -18,6 +18,7 @@ module.exports = {
 			'	<option value="true">true/remove</option>' +
 			'	<option value="change">change</option>' +
 			'</select> ' +
+			'<span class="-ht-cmd" id="cmdClearSelect">clear selection</span> ' +
 			'<span id="spMsg"></span> ' +
 			'<div class="tree-container" id="tree1"></div>';
 
@@ -158,6 +159,17 @@ module.exports = {
 		document.getElementById("cmdClick").onclick = function () {
 			//.clickPart(el, className, delay)
 			ui_model_treeview.clickToExpand(elNode2);
+		}
+
+		document.getElementById("cmdClearSelect").onclick = function () {
+			/*
+			.unselectInElement(el, include, multiple)		//return unselect count
+				multiple: true/false/"both"
+
+			shortcuts:
+				.unselectAll(el, multiple)
+			*/
+			ui_model_treeview.unselectAll(elNode2, "both");
 		}
 
 		//.containerAttribute(el, name [, value])		//get or set container attribute

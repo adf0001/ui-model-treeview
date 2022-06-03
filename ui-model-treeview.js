@@ -198,6 +198,50 @@ var selectedState = function (el, boolValue, toOrFromContainer, multiple) { retu
 var getSelected = function (el, fromContainer, multiple) { return nodeClass(el, "tree-selected", void 0, fromContainer, multiple); }
 
 /*
+return unselect count
+	multiple: true/false/"both"
+*/
+var unselectInElement = function (el, include, multiple) {
+	if (multiple === "both") {
+		return unselectInElement(el, include, false) +	//single selection
+			unselectInElement(el, include, true);	//multiple selection
+	}
+
+	var elSelected = getSelected(el, true, multiple);
+	if (!elSelected) return 0;
+
+	var cnt = 0;
+	if (elSelected instanceof Array) {	//from -eid-list
+		elSelected.forEach(v => {
+			if (el.contains(v)) {
+				if (include || v !== el) {
+					selectedState(v, false, true, true);	//multiple==true
+					cnt++;
+				}
+			}
+		});
+	}
+	else {		//from -eid-last
+		if (el.contains(elSelected)) {
+			if (include || elSelected !== el) {
+				selectedState(elSelected, false, true, false);	//multiple==false
+				cnt++;
+			}
+		}
+	}
+
+	return cnt;
+}
+
+//shortcuts for container
+var unselectAll = function (el, multiple) {
+	var container = getContainer(el);
+	if (!container) return 0;
+
+	return unselectInElement(container, false, multiple);
+}
+
+/*
 listen click event by setting container.onclick.
 	options:
 		.multipleSelection
@@ -228,27 +272,19 @@ var listenOnClick = function (el, options) {
 		var elTarget = evt.target;
 
 		if (elTarget.classList.contains("tree-to-expand")) {
-			var state = getToExpandState(elTarget), elChildren, elList;
+			var state = getToExpandState(elTarget), elChildren;
 			if (state === "disable") return;
 
 			setToExpandState(elTarget, "toggle");
 			state = !state;
 
 			if (!state || !collapseSelection ||
-				!(elChildren = nodeChildren(elTarget)) || !elChildren.hasChildNodes() ||
-				!(elList = getSelected(elTarget, true, multipleSelection))
+				!(elChildren = nodeChildren(elTarget)) || !elChildren.hasChildNodes()
 			) return;
 
-			var done = false;
-			((elList instanceof Array) ? elList : [elList])
-				.forEach(v => {
-					if (elChildren.contains(v)) {
-						selectedState(v, false, true, multipleSelection);
-						done = true;
-					}
-				});
+			var cnt = unselectInElement(elChildren, false, multipleSelection);
 
-			if (done && collapseSelection === "change") {
+			if (cnt > 0 && collapseSelection === "change") {
 				selectedState(elTarget, false, true, multipleSelection);
 				clickName(elTarget, false, true, multipleSelection);	//may notify
 			}
@@ -554,6 +590,8 @@ module.exports = {
 
 	selectedState,
 	getSelected,
+	unselectInElement,
+	unselectAll,
 
 	INFO_NODE,
 	INFO_TYPE,
