@@ -249,14 +249,15 @@ listen click event by setting container.onclick.
 		.multipleSelection
 			boolean type; multiple selection flag;
 
-		.collapseSelection
+		.updateSelection
 			false		//default
 				don't touch selection; 
 			true/"remove"
-				remove the collapsed node from the selection;
-			"change"
-				remove the collapsed node from the selection;
-				and add the node that casused collapsing to the selection;
+				remove the collapsed nodes from the selection;
+			"shift"
+				remove the collapsed nodes from the selection;
+					and if any node is removed from the selection,
+						add the node that casused collapsing to the selection;
 
 		.toggleSelection
 			boolean type; selection can be canceled by another click;
@@ -267,7 +268,7 @@ var listenOnClick = function (el, options) {
 	if (!container) return;
 
 	var multipleSelection = options?.multipleSelection;
-	var collapseSelection = options?.collapseSelection;
+	var updateSelection = options?.updateSelection;
 	var toggleSelection = options?.toggleSelection;
 
 	container.onclick = function (evt) {
@@ -280,13 +281,13 @@ var listenOnClick = function (el, options) {
 			setToExpandState(elTarget, "toggle");
 			state = !state;
 
-			if (!state || !collapseSelection ||
+			if (!state || !updateSelection ||
 				!(elChildren = nodeChildren(elTarget)) || !elChildren.hasChildNodes()
 			) return;
 
 			var cnt = unselectInElement(elChildren, false, multipleSelection);
 
-			if (cnt > 0 && collapseSelection === "change") {
+			if (cnt > 0 && updateSelection === "shift") {
 				selectedState(elTarget, false, true, multipleSelection);
 				clickName(elTarget, false, true, multipleSelection);	//may notify
 			}

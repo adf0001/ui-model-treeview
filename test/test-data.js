@@ -12,11 +12,11 @@ module.exports = {
 			'<span class="-ht-cmd" id="cmdClick">click</span> ' +
 			'<label><input id=chkMultiple type=checkbox>multiple</label> ' +
 			'<label><input id=chkToggleSelection type=checkbox>toggle selection</label> ' +
-			'<select id=selCollapse>' +
-			'	<optgroup  label="collapse select"></optgroup>' +
+			'<select id=selUpdateSel>' +
+			'	<optgroup  label="update select"></optgroup>' +
 			'	<option value="false">false</option>' +
 			'	<option value="true">true/remove</option>' +
-			'	<option value="change">change</option>' +
+			'	<option value="shift">shift</option>' +
 			'</select> ' +
 			'<span class="-ht-cmd" id="cmdClearSelect">clear selection</span> ' +
 			'<span class="-ht-cmd" id="cmdRemove">remove</span> ' +
@@ -101,7 +101,7 @@ module.exports = {
 		});
 
 		function setOnClick() {
-			var cs = document.getElementById("selCollapse").value;
+			var cs = document.getElementById("selUpdateSel").value;
 			if (cs === "true") cs = true;
 			else if (cs === "false") cs = false;
 			//alert(cs);
@@ -112,21 +112,22 @@ module.exports = {
 					.multipleSelection
 						multiple selection;
 
-					.collapseSelection
+					.updateSelection
 						false		//default
 							don't touch selection; 
 						true/"remove"
 							remove the collapsed node from the selection;
-						"change"
-							remove the collapsed node from the selection;
-							and add the node that casused collapsing to the selection;
+						"shift"
+							remove the collapsed nodes from the selection;
+								and if any node is removed from the selection,
+									add the node that casused collapsing to the selection;
 
 					.toggleSelection
 						boolean type; selection can be canceled by another click;
 			*/
 			ui_model_treeview.listenOnClick(el, {
 				multipleSelection: document.getElementById("chkMultiple").checked,
-				collapseSelection: cs,
+				updateSelection: cs,
 				toggleSelection: document.getElementById("chkToggleSelection").checked,
 			});
 
@@ -134,7 +135,7 @@ module.exports = {
 		setOnClick();
 
 		document.getElementById("chkMultiple").onclick = setOnClick;
-		document.getElementById("selCollapse").onchange = setOnClick;
+		document.getElementById("selUpdateSel").onchange = setOnClick;
 		document.getElementById("chkToggleSelection").onclick = setOnClick;
 
 		document.getElementById("cmdEnable").onclick = function () {
