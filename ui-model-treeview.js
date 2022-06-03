@@ -262,6 +262,11 @@ listen click event by setting container.onclick.
 		.toggleSelection
 			boolean type; selection can be canceled by another click;
 		
+		.keepSelection
+			if not set true, clear current seletion after setting container.onclick;
+		
+		.notifyClick
+			set a click event to container after setting container.onclick;
 */
 var listenOnClick = function (el, options) {
 	var container = getContainer(el);
@@ -299,6 +304,10 @@ var listenOnClick = function (el, options) {
 			}
 		}
 	}
+
+	if (!options?.keepSelection) unselectAll(container, "both");
+
+	if (options?.notifyClick) clickContainer(container);
 }
 
 /*
@@ -307,8 +316,12 @@ get the direct part element of a tree-node by class name, or create by template.
 template: { (outerHtml | innerHtml/content | createByDefault) } | innerHtml | createByDefault===true
 */
 var nodePart = function (el, className, template, before) {
+	if (className === "tree-container") return getContainer(el);	//shortcut for tree-container
+
 	el = getNode(el);
 	if (!el) return null;
+
+	if (className === "tree-node") return el;	//shortcut for tree-node
 
 	var selector = "#" + ele_id(el) + " > ." + className.replace(/^\.+/, "");
 	var elPart = el.querySelector(selector);
@@ -374,6 +387,7 @@ var clickPart = function (el, className, delay) {
 //shortcuts of .clickPart()
 var clickName = function (el, delay) { return clickPart(el, "tree-name", delay); }
 var clickToExpand = function (el, delay) { return clickPart(el, "tree-to-expand", delay); }
+var clickContainer = function (el, delay) { return clickPart(el, "tree-container", delay); }
 
 /*
 options:{ (outHtml | innerHtml/content | name | nameHtml, toExpand, toExpandTemplate),
@@ -662,6 +676,7 @@ module.exports = {
 
 	clickName,
 	clickToExpand,
+	clickContainer,
 
 	listenOnClick,
 

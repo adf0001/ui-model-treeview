@@ -124,11 +124,18 @@ module.exports = {
 
 					.toggleSelection
 						boolean type; selection can be canceled by another click;
+
+					.keepSelection
+						if not set true, clear current seletion after setting container.onclick;
+					
+					.notifyClick
+						set a click event to container after setting container.onclick;
 			*/
 			ui_model_treeview.listenOnClick(el, {
 				multipleSelection: document.getElementById("chkMultiple").checked,
 				updateSelection: cs,
 				toggleSelection: document.getElementById("chkToggleSelection").checked,
+				notifyClick: true,
 			});
 
 		}
@@ -178,6 +185,7 @@ module.exports = {
 				.unselectAll(el, multiple)
 			*/
 			ui_model_treeview.unselectAll(elNode2, "both");
+			ui_model_treeview.clickContainer(elNode2);
 		}
 
 		//.containerAttribute(el, name [, value])		//get or set container attribute
