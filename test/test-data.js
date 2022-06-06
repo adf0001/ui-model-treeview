@@ -94,29 +94,28 @@ module.exports = {
 
 		el.addEventListener("click", function () {
 			setTimeout(() => {
-				document.getElementById("spMsg").textContent = el.getAttribute("tree-selected-eid-last") +
-					" / " + el.getAttribute("tree-selected-eid-list");
+				document.getElementById("spMsg").textContent = el.getAttribute("tree-selected-eid-data");
 
 			}, 0);	//delay for linsten sequence
 		});
 
 		function setOnClick() {
-			var cs = document.getElementById("selUpdateSel").value;
-			if (cs === "true") cs = true;
-			else if (cs === "false") cs = false;
-			//alert(cs);
+			var updateSel = document.getElementById("selUpdateSel").value;
+			if (updateSel === "true") updateSel = true;
+			else if (updateSel === "false") updateSel = false;
+			//alert(updateSel);
 
 			/*
 			.listenOnClick(el, options)		//listen click event by setting container.onclick.
 				options:
 					.multipleSelection
-						multiple selection;
+						boolean type; multiple selection flag;
 
 					.updateSelection
 						false		//default
 							don't touch selection; 
 						true/"remove"
-							remove the collapsed node from the selection;
+							remove the collapsed nodes from the selection;
 						"shift"
 							remove the collapsed nodes from the selection;
 								and if any node is removed from the selection,
@@ -124,16 +123,13 @@ module.exports = {
 
 					.toggleSelection
 						boolean type; selection can be canceled by another click;
-
-					.keepSelection
-						if not set true, clear current seletion after setting container.onclick;
 					
 					.notifyClick
 						set a click event to container after setting container.onclick;
 			*/
 			ui_model_treeview.listenOnClick(el, {
 				multipleSelection: document.getElementById("chkMultiple").checked,
-				updateSelection: cs,
+				updateSelection: updateSel,
 				toggleSelection: document.getElementById("chkToggleSelection").checked,
 				notifyClick: true,
 			});
@@ -166,9 +162,18 @@ module.exports = {
 		}
 
 		document.getElementById("cmdRemove").onclick = function () {
-			var sel = ui_model_treeview.getSelected(elNode2, true);
 
-			ui_model_treeview.removeNode(sel);
+			var updateSel = document.getElementById("selUpdateSel").value;
+			if (updateSel === "true") updateSel = true;
+			else if (updateSel === "false") updateSel = false;
+
+			var sel = ui_model_treeview.getSelected(el, true);
+
+			ui_model_treeview.removeNode(sel, {
+				updateSelection: updateSel
+			});
+
+			ui_model_treeview.clickContainer(el);
 		}
 
 		document.getElementById("cmdClick").onclick = function () {
@@ -178,21 +183,38 @@ module.exports = {
 
 		document.getElementById("cmdClearSelect").onclick = function () {
 			/*
-			.unselectInElement(el, include, multiple)		//return unselect count
-				multiple: true/false/"both"
+			.unselectInElement(el, include)		//return unselect count
 
 			shortcuts:
-				.unselectAll(el, multiple)
+				.unselectAll(el)
 			*/
-			ui_model_treeview.unselectAll(elNode2, "both");
-			ui_model_treeview.clickContainer(elNode2);
+			ui_model_treeview.unselectAll(el);
+			ui_model_treeview.clickContainer(el);
 		}
 
-		//.containerAttribute(el, name [, value])		//get or set container attribute
+		//.containerAttribute(el, name, value, json)		//get or set container attribute
 		ui_model_treeview.containerAttr(elMy2, "check", 999);
 
 		/*
-		.setNodeClass(el, className, value [, toContainer [, multiple ]] )
+		.setNodeClass(el, className, value [, toContainer [, multiple ]] )	//set node class
+			toContainer
+				false
+					only set current node class, don't save data to container;
+				true
+					save node eid data to container attribute className+"-eid-data";
+
+					if "multiple" is false
+						if "value" is true, toggle the last;
+						then save eid as a json string object, or null;
+					if "multiple" is true
+						save as eid array, or empty array;
+					if "multiple" is `undefined`
+						get current "multiple" from the data, then save;
+			value
+				boolean type;
+				when toContainer is true,
+					set true to add to the container attribute;
+					set false to remove from the container attribute;
 		*/
 		ui_model_treeview.setNodeClass(elMy2, "my-class", true, true);
 		ui_model_treeview.setNodeClass(elMy2, "my-class2", true, true, true);
@@ -204,10 +226,10 @@ module.exports = {
 		shortcuts:
 			//shortcut for "tree-selected"
 			.selectedState(el, boolValue, toOrFromContainer, multiple)
-			.getSelected(el, fromContainer, multiple)
+			.getSelected(el, fromContainer)
 		*/
 		ui_model_treeview.selectedState(elMy2, true, true);
-		ui_model_treeview.selectedState(elMy2, true, true, true);
+		//ui_model_treeview.selectedState(elMy2, true, true, true);
 
 		//.getNodeInfo(elNode, onlyTreeNode)
 		//get a NodeInfo, that is, [elNode]/[elChildren,"children"]/[elContainer, "container"]
@@ -240,11 +262,9 @@ module.exports = {
 
 			ui_model_treeview.selectedState(elMy2) === true &&
 			ui_model_treeview.selectedState(elMy2, void 0, true) === elNode3 &&
-			ui_model_treeview.selectedState(elMy2, void 0, true, true)[0] === elNode3 &&
 
 			ui_model_treeview.getSelected(elMy2) === true &&
 			ui_model_treeview.getSelected(elMy2, true) === elNode3 &&
-			ui_model_treeview.getSelected(elMy2, true, true)[0] === elNode3 &&
 
 			nf1[INFO_NODE] === elNode3 &&
 			!nf1[INFO_TYPE] &&

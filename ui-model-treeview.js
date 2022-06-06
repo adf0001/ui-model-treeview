@@ -89,19 +89,7 @@ var getContainer = function (el) {
 	return null;
 }
 
-/*
-get or set container attribute
-	value
-		if value is "undefined", get and return the value;
-			if not exist, return null;
-			else
-				if json is true, return the json object;
-				else return the string;
-		if value is null, remove the attribute;
-		in othercases, set the attribute value as a string, or a json string;
-	json
-		boolean type
-*/
+//get or set container attribute, refer to element-attribute @ npm.
 var containerAttribute = function (el, name, value, json) {
 	var container = getContainer(el);
 	if (!container) return;
@@ -116,11 +104,19 @@ var getNodeClass = function (el, className) {
 
 /*
 set node class
-	toContainer==true && multiple==false:
-		toggle the last, then save node eid to container attribute className+"-eid-last";
-	toContainer==true && multiple==true:
-		add/remove node eid to container attribute className+"-eid-list", as an array json string;
-	
+	toContainer
+		false
+			only set current node class, don't save data to container;
+		true
+			save node eid data to container attribute className+"-eid-data";
+
+			if "multiple" is false
+				if "value" is true, toggle the last;
+				then save eid as a json string object, or null;
+			if "multiple" is true
+				save as eid array, or empty array;
+			if "multiple" is `undefined`
+				get current "multiple" from the data, then save;
 	value
 		boolean type;
 		when toContainer is true,
@@ -138,58 +134,77 @@ var setNodeClass = function (el, className, value, toContainer, multiple) {
 	var container = getContainer(el);
 	if (!container) return;
 
-	var v = element_attribute(container, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
+	var v = element_attribute.getJson(container, className + "-eid-data");
+	if (typeof multiple === "undefined") multiple = (v && (v instanceof Array));	//[...] or []
+
 	var eid = ele_id(elNode);
-	var idx;
+	var idx, toSave;
 
 	if (multiple) {		//multiple eids
-		if (value) {
-			if (!v) v = [eid];
-			else if (v.indexOf(eid) >= 0) return; 	//already in the array
-			else v.push(eid);
+		//transfer to array
+		if (!v) {
+			v = [];
+			toSave = true;
 		}
-		else {
-			if (v && (idx = v.indexOf(eid)) >= 0) v.splice(idx, 1);	//remove
-			else return;	//already not in the array
+		else if (!(v instanceof Array)) {
+			v = [v.toString()];
+			toSave = true;
 		}
 
-		if (v && v.length > 0) element_attribute(container, className + "-eid-list", v, true);
-		else element_attribute(container, className + "-eid-list", null);		//remove
-	}
-	else {		//single eid
+		//save to container
 		if (value) {
-			if (v && v !== eid) document.getElementById(v)?.classList?.remove(className);
-			element_attribute(container, className + "-eid-last", eid);
+			if (v.indexOf(eid) < 0) v.push(eid);	//not in the array
+			else if (!toSave) return;	//already in the array, check force save.
 		}
 		else {
-			if (v === eid) element_attribute(container, className + "-eid-last", null);	//remove
+			if ((idx = v.indexOf(eid)) >= 0) v.splice(idx, 1);	//remove
+			else if (!toSave) return;	//already not in the array, check force save.
+		}
+
+		element_attribute.setJson(container, className + "-eid-data", v);
+	}
+	else {		//single eid
+		//transfer to string or null
+		if (typeof v !== "string" && v !== null) {
+			if (v && (v instanceof Array) && v.length) {
+				v = v[v.length - 1];	//transfer last one
+				if (typeof v !== "string") v = null;
+			}
+			else v = null;
+
+			toSave = true;
+		}
+
+		//save to container
+		if (value) {
+			if (v && v !== eid) document.getElementById(v)?.classList?.remove(className);	//toggle last
+			element_attribute.setJson(container, className + "-eid-data", eid);
+		}
+		else {
+			if (v === eid) element_attribute.remove(container, className + "-eid-data");
+			else if (toSave) element_attribute.json(container, className + "-eid-data", v);
 		}
 	}
 }
 
 //get node or node-list from container attribute
-var getContainerClassNode = function (el, className, multiple) {
-	var container = getContainer(el);
-	if (!container) return;
-
-	if (typeof multiple === "undefined") {
-		//check multiple by the existence of the attribute
-		if (container.hasAttribute(className + "-eid-last")) multiple = false;
-		else if (container.hasAttribute(className + "-eid-list")) multiple = true;
-		else return;
-	}
-
-	var v = element_attribute(container, className + "-eid-" + (multiple ? "list" : "last"), void 0, multiple);
+var getContainerClassNode = function (el, className) {
+	var v = containerAttribute(el, className + "-eid-data", void 0, true);
 	if (!v) return;
 
 	if (v instanceof Array) return v.map(v => document.getElementById(v));
 	else return document.getElementById(v);
 }
 
+var isContainerMultipleNodeClass = function (el, className) {
+	var v = containerAttribute(el, className + "-eid-data", void 0, true);
+	return !!(v && (v instanceof Array));
+}
+
 //shortcut for getNodeClass()/setNodeClass()/getContainerClassNode()
 var nodeClass = function (el, className, boolValue, toOrFromContainer, multiple) {
 	if (typeof boolValue === "undefined") {
-		if (toOrFromContainer) return getContainerClassNode(el, className, multiple);
+		if (toOrFromContainer) return getContainerClassNode(el, className);
 		else return getNodeClass(el, className);
 	}
 	else return setNodeClass(el, className, boolValue, toOrFromContainer, multiple);
@@ -197,50 +212,45 @@ var nodeClass = function (el, className, boolValue, toOrFromContainer, multiple)
 
 //shortcut for "tree-selected"
 var selectedState = function (el, boolValue, toOrFromContainer, multiple) { return nodeClass(el, "tree-selected", boolValue, toOrFromContainer, multiple); }
-var getSelected = function (el, fromContainer, multiple) { return nodeClass(el, "tree-selected", void 0, fromContainer, multiple); }
+var getSelected = function (el, fromContainer) { return nodeClass(el, "tree-selected", void 0, fromContainer); }
+var isMultipleSelected = function (el) { return isContainerMultipleNodeClass(el, "tree-selected"); }
 
 /*
-return unselect count
-	multiple: true/false/"both"
+return an unselect element array, or null.
 */
-var unselectInElement = function (el, include, multiple) {
-	if (multiple === "both") {
-		return unselectInElement(el, include, false) +	//single selection
-			unselectInElement(el, include, true);	//multiple selection
-	}
+var unselectInElement = function (el, include) {
+	var elSelected = getSelected(el, true);
+	if (!elSelected) return null;
 
-	var elSelected = getSelected(el, true, multiple);
-	if (!elSelected) return 0;
-
-	var cnt = 0;
-	if (elSelected instanceof Array) {	//from -eid-list
+	var a = null;
+	if (elSelected instanceof Array) {	//multiple selection
 		elSelected.forEach(v => {
 			if (el.contains(v)) {
 				if (include || v !== el) {
 					selectedState(v, false, true, true);	//multiple==true
-					cnt++;
+					(a || (a = [])).push(v);
 				}
 			}
 		});
 	}
-	else {		//from -eid-last
+	else {		//single selection
 		if (el.contains(elSelected)) {
 			if (include || elSelected !== el) {
 				selectedState(elSelected, false, true, false);	//multiple==false
-				cnt++;
+				(a || (a = [])).push(elSelected);
 			}
 		}
 	}
 
-	return cnt;
+	return a;
 }
 
 //shortcuts for container
-var unselectAll = function (el, multiple) {
+var unselectAll = function (el) {
 	var container = getContainer(el);
 	if (!container) return 0;
 
-	return unselectInElement(container, false, multiple);
+	return unselectInElement(container, false);
 }
 
 /*
@@ -262,9 +272,6 @@ listen click event by setting container.onclick.
 		.toggleSelection
 			boolean type; selection can be canceled by another click;
 		
-		.keepSelection
-			if not set true, clear current seletion after setting container.onclick;
-		
 		.notifyClick
 			set a click event to container after setting container.onclick;
 */
@@ -272,7 +279,7 @@ var listenOnClick = function (el, options) {
 	var container = getContainer(el);
 	if (!container) return;
 
-	var multipleSelection = options?.multipleSelection;
+	var multipleSelection = !!options?.multipleSelection;
 	var updateSelection = options?.updateSelection;
 	var toggleSelection = options?.toggleSelection;
 
@@ -290,11 +297,11 @@ var listenOnClick = function (el, options) {
 				!(elChildren = nodeChildren(elTarget)) || !elChildren.hasChildNodes()
 			) return;
 
-			var cnt = unselectInElement(elChildren, false, multipleSelection);
+			var unselectList = unselectInElement(elChildren, false);
 
-			if (cnt > 0 && updateSelection === "shift") {
+			if (unselectList && updateSelection === "shift") {
 				selectedState(elTarget, false, true, multipleSelection);
-				clickName(elTarget, false, true, multipleSelection);	//may notify
+				clickName(elTarget);	//may notify
 			}
 		}
 		else {
@@ -305,7 +312,20 @@ var listenOnClick = function (el, options) {
 		}
 	}
 
-	if (!options?.keepSelection) unselectAll(container, "both");
+	//refresh selection
+	var sel = getSelected(container, true);
+	if (multipleSelection) {
+		if (!sel || !(sel instanceof Array)) {
+			selectedState(sel || container, sel, true, multipleSelection);
+		}
+	}
+	else {
+		if (sel instanceof Array) {
+			sel = sel[sel.length - 1] || null;
+			unselectAll(container);
+			selectedState(sel || container, sel, true, multipleSelection);
+		}
+	}
 
 	if (options?.notifyClick) clickContainer(container);
 }
@@ -578,11 +598,19 @@ remove node
 		.removeEmptyChildren
 			set true remove empty tree-children;
 
+		.updateSelection
+			true/false/any-others		//default
+				remove the disppeared nodes from the selection;
+			"shift"
+				remove the disppeared nodes from the selection;
+					and if any node is removed from the selection,
+						add the next/previous/parent node to the selection;
+
 return true if finished
 */
 var removeNode = function (elNode, options) {
-	//for elNode array
 	if (elNode instanceof Array) {
+		//for elNode array
 		var anyReturn;
 		elNode.forEach(v => { anyReturn = removeNode(v, options) || anyReturn; });
 		return anyReturn;
@@ -590,6 +618,7 @@ var removeNode = function (elNode, options) {
 
 	//arguments
 	var onlyChildren = options?.onlyChildren;
+	var updateSelection = options?.updateSelection;
 
 	var ni = getNodeInfo(elNode);
 	if (!ni) return;
@@ -602,7 +631,13 @@ var removeNode = function (elNode, options) {
 	if (!elParent) return;
 
 	//unselect
-	unselectInElement(elNode, !onlyChildren, "both");
+	var unselectList = unselectInElement(elNode, !onlyChildren), shiftList;
+	if (unselectList && updateSelection === "shift") {
+		shiftList = unselectList.map(v => {
+			v = v.nextSibling || v.previousSibling || v.parentNode.parentNode;
+			return v?.classList?.contains("tree-node") ? v : null;
+		});
+	}
 
 	//remove
 	if (onlyChildren) elParent.innerHTML = "";	//remove dom childrens
@@ -622,6 +657,14 @@ var removeNode = function (elNode, options) {
 		}
 	}
 
+	if (updateSelection === "shift") {
+		var container = getContainer(elParent);
+		shiftList.forEach(v => {
+			if (v && container.contains(v)) {
+				selectedState(v, true, true);
+			}
+		});
+	}
 	return true;
 }
 
@@ -659,11 +702,14 @@ module.exports = {
 	getNodeClass,
 	setNodeClass,
 	getContainerClassNode,
+	isContainerMultipleNodeClass,
 
 	nodeClass,
 
 	selectedState,
 	getSelected,
+	isMultipleSelected,
+
 	unselectInElement,
 	unselectAll,
 
