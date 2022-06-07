@@ -1,8 +1,4 @@
-.tree-container {
-	position: relative;
-}
-
-.tree-container .tree-node .tree-children {
+.tree-container .tree-node {
 	position: relative;
 	padding-left: 1em;
 }
@@ -23,6 +19,6 @@
 	background-color: transparent;
 }
 
-.tree-container .tree-node.tree-selected > .tree-name {
+.tree-container .tree-node.tree-selected>.tree-name {
 	background-color: lime;
 }
