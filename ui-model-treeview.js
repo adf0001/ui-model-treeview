@@ -668,6 +668,13 @@ var removeNode = function (elNode, options) {
 	return true;
 }
 
+var removeAllChildren = function (elNode, options) {
+	options = options ? Object.create(options) : {};
+	options.onlyChildren = true;
+
+	return removeNode(elNode, options)
+}
+
 //module exports
 
 module.exports = {
@@ -728,5 +735,7 @@ module.exports = {
 
 	removeNode,
 	remove: removeNode,
+	removeAllChildren,
+	removeChildren: removeAllChildren,
 
 };

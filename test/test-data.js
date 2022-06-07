@@ -19,7 +19,8 @@ module.exports = {
 			'	<option value="shift">shift</option>' +
 			'</select> ' +
 			'<span class="-ht-cmd" id="cmdClearSelect">clear selection</span> ' +
-			'<span class="-ht-cmd" id="cmdRemove">remove</span> ' +
+			'<span class="-ht-cmd" id="cmdRemove">remove</span>/' +
+			'<span class="-ht-cmd" id="cmdRemoveCh" title="remove all children">ch</span> ' +
 			'<span id="spMsg"></span> ' +
 			'<div class="tree-container" id="tree1"></div>';
 
@@ -99,10 +100,16 @@ module.exports = {
 			}, 0);	//delay for linsten sequence
 		});
 
-		function setOnClick() {
+		function getUpdateSel(){
 			var updateSel = document.getElementById("selUpdateSel").value;
 			if (updateSel === "true") updateSel = true;
 			else if (updateSel === "false") updateSel = false;
+
+			return updateSel;
+		}
+
+		function setOnClick() {
+			var updateSel = getUpdateSel();
 			//alert(updateSel);
 
 			/*
@@ -162,14 +169,23 @@ module.exports = {
 		}
 
 		document.getElementById("cmdRemove").onclick = function () {
-
-			var updateSel = document.getElementById("selUpdateSel").value;
-			if (updateSel === "true") updateSel = true;
-			else if (updateSel === "false") updateSel = false;
+			var updateSel = getUpdateSel();
 
 			var sel = ui_model_treeview.getSelected(el, true);
 
 			ui_model_treeview.removeNode(sel, {
+				updateSelection: updateSel
+			});
+
+			ui_model_treeview.clickContainer(el);
+		}
+
+		document.getElementById("cmdRemoveCh").onclick = function () {
+			var updateSel = getUpdateSel();
+
+			var sel = ui_model_treeview.getSelected(el, true);
+
+			ui_model_treeview.removeChildren(sel, {
 				updateSelection: updateSel
 			});
 
