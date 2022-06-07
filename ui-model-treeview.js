@@ -5,7 +5,7 @@
 convention:
 	a treeview is defined as
 
-	lv2:	<div class='tree-container'>						//tree container at topmost, optional;
+	lv1:	<div class='tree-container'>						//tree container at topmost, required;
 				...
 	lv1:		<div class='tree-node'>							//tree node main element, required;
 
@@ -648,7 +648,7 @@ var removeNode = function (elNode, options) {
 		elParent = getNode(elParent);
 		if (!elParent) return true;	//the later in elNode array may be removed, and elParent may be null;
 
-		setToExpandState(elParent, "disable");
+		if (nodeToExpand(elParent)) setToExpandState(elParent, "disable");
 
 		if (options?.removeEmptyChildren) {
 			//remove empty children
